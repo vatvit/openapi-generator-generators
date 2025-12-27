@@ -123,3 +123,15 @@ endif
 	@docker pull openapitools/openapi-generator-cli:$(VERSION)
 	@echo "✅ Updated to $(VERSION)"
 	@echo "ℹ️  Run 'make generate' to regenerate code with new version"
+
+fix-filenames: ## Fix filename issues (removes {{classname}} literal from generated files)
+ifndef OUTPUT_NAME
+	$(error OUTPUT_NAME is required. Example: OUTPUT_NAME=petstore)
+endif
+	@echo "🔧 Fixing filenames in generated/php-lumen/$(OUTPUT_NAME)..."
+	@find ../../generated/php-lumen/$(OUTPUT_NAME)/lib -name "*{{classname}}*" 2>/dev/null | while read file; do \
+		newfile=$$(echo "$$file" | sed 's/{{classname}}//g' | sed 's/Api\.php/Api.php/'); \
+		mv "$$file" "$$newfile" && echo "  ✅ $$file → $$newfile"; \
+	done || echo "  ℹ️  No files with {{classname}} found"
+	@echo "✅ Filename fixes complete!"
+
