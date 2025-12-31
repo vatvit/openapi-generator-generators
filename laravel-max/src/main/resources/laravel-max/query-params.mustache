@@ -11,7 +11,7 @@ namespace {{{modelPackage}}};
  * OpenAPI Operation: {{operationId}}
  * HTTP Method: {{httpMethod}} {{path}}
  */
-class {{className}}
+{{#queryParamsFinal}}final {{/queryParamsFinal}}class {{className}}
 {
     /**
 {{#queryParams}}

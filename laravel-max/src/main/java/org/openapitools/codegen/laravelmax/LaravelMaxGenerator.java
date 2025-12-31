@@ -101,6 +101,14 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
   protected String collectionBaseClass = "Illuminate\\Http\\Resources\\Json\\ResourceCollection";
   protected String formRequestBaseClass = "Illuminate\\Foundation\\Http\\FormRequest";
 
+  // Final class configuration (default: true - classes are final)
+  // Set to false to allow extending generated classes
+  protected boolean controllerFinal = true;
+  protected boolean resourceFinal = true;
+  protected boolean formRequestFinal = true;
+  protected boolean modelFinal = true;
+  protected boolean queryParamsFinal = true;
+
   /**
    * Configures the type of generator.
    *
@@ -315,6 +323,9 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     String resourceBaseClassName = resourceBaseClass.contains("\\")
         ? resourceBaseClass.substring(resourceBaseClass.lastIndexOf("\\") + 1)
         : resourceBaseClass;
+    if (resourceFinal) {
+      sb.append("final ");
+    }
     sb.append("class ").append(data.get("classname")).append(" extends ").append(resourceBaseClassName).append("\n");
     sb.append("{\n");
 
@@ -494,6 +505,9 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     sb.append(" */\n");
 
     // Class declaration
+    if (controllerFinal) {
+      sb.append("final ");
+    }
     sb.append("class ").append(data.get("classname")).append("\n");
     sb.append("{\n");
 
@@ -1169,6 +1183,9 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     String formRequestBaseClassName = formRequestBaseClass.contains("\\")
         ? formRequestBaseClass.substring(formRequestBaseClass.lastIndexOf("\\") + 1)
         : formRequestBaseClass;
+    if (formRequestFinal) {
+      sb.append("final ");
+    }
     sb.append("class ").append(data.get("classname")).append(" extends ").append(formRequestBaseClassName).append("\n");
     sb.append("{\n");
 
@@ -1514,6 +1531,7 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
         queryParamsData.put("invokerPackage", invokerPackage);
         queryParamsData.put("modelPackage", modelPackage);
         queryParamsData.put("apiPackage", apiPackage);
+        queryParamsData.put("queryParamsFinal", queryParamsFinal);
 
         // Build query params list with PHP types
         List<Map<String, Object>> queryParams = new ArrayList<>();
@@ -1871,6 +1889,23 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
       formRequestBaseClass = (String) additionalProperties.get("formRequestBaseClass");
     }
 
+    // Final class configuration
+    if (additionalProperties.containsKey("controller.final")) {
+      controllerFinal = Boolean.parseBoolean(additionalProperties.get("controller.final").toString());
+    }
+    if (additionalProperties.containsKey("resource.final")) {
+      resourceFinal = Boolean.parseBoolean(additionalProperties.get("resource.final").toString());
+    }
+    if (additionalProperties.containsKey("formRequest.final")) {
+      formRequestFinal = Boolean.parseBoolean(additionalProperties.get("formRequest.final").toString());
+    }
+    if (additionalProperties.containsKey("model.final")) {
+      modelFinal = Boolean.parseBoolean(additionalProperties.get("model.final").toString());
+    }
+    if (additionalProperties.containsKey("queryParams.final")) {
+      queryParamsFinal = Boolean.parseBoolean(additionalProperties.get("queryParams.final").toString());
+    }
+
     // ========================================================================
     // APPLY DEFAULT NAMESPACES (based on resolved packages)
     // ========================================================================
@@ -1916,6 +1951,13 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     additionalProperties.put("resourceBaseClass", resourceBaseClass);
     additionalProperties.put("collectionBaseClass", collectionBaseClass);
     additionalProperties.put("formRequestBaseClass", formRequestBaseClass);
+
+    // Final class configuration
+    additionalProperties.put("controllerFinal", controllerFinal);
+    additionalProperties.put("resourceFinal", resourceFinal);
+    additionalProperties.put("formRequestFinal", formRequestFinal);
+    additionalProperties.put("modelFinal", modelFinal);
+    additionalProperties.put("queryParamsFinal", queryParamsFinal);
 
     // Note: routes/api.php is generated manually in writeRoutesFile()
     // No supporting files needed currently

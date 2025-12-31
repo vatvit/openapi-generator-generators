@@ -171,6 +171,44 @@ Allows using custom base classes instead of Laravel defaults:
 
 ---
 
+## 4. Final Class Configuration
+
+By default, all generated classes are declared as `final` to prevent inheritance at the project level. This enforces the contract-first approach where generated code should not be modified.
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `controller.final` | boolean | `true` | Add `final` keyword to Controller classes |
+| `resource.final` | boolean | `true` | Add `final` keyword to Resource classes |
+| `formRequest.final` | boolean | `true` | Add `final` keyword to FormRequest classes |
+| `model.final` | boolean | `true` | Add `final` keyword to Model/DTO classes |
+| `queryParams.final` | boolean | `true` | Add `final` keyword to QueryParams DTO classes |
+
+**Example - Allow extending Resources:**
+```json
+{
+  "additionalProperties": {
+    "resource.final": false
+  }
+}
+```
+
+**Example - Allow extending all classes (not recommended):**
+```json
+{
+  "additionalProperties": {
+    "controller.final": false,
+    "resource.final": false,
+    "formRequest.final": false,
+    "model.final": false,
+    "queryParams.final": false
+  }
+}
+```
+
+**Note:** Handler interfaces cannot be `final` (interfaces in PHP cannot be final).
+
+---
+
 ## Configuration Summary
 
 | Category | Count | Properties |
@@ -178,7 +216,8 @@ Allows using custom base classes instead of Laravel defaults:
 | Standard (inherited) | 3 | `invokerPackage`, `apiPackage`, `modelPackage` |
 | Per-file config | 23 | 8 file types × ~3 properties each |
 | Base classes | 3 | `resourceBaseClass`, `collectionBaseClass`, `formRequestBaseClass` |
-| **Total** | **29** | |
+| Final class config | 5 | `controller.final`, `resource.final`, `formRequest.final`, `model.final`, `queryParams.final` |
+| **Total** | **34** | |
 
 ---
 
@@ -263,12 +302,13 @@ generated/
 | Property | Status |
 |----------|--------|
 | `invokerPackage`, `apiPackage`, `modelPackage` | ✅ Implemented |
-| `controller.*` | ⏳ Pending (GENDE-002) |
-| `resource.*` | ⏳ Pending (GENDE-002) |
-| `formRequest.*` | ⏳ Pending (GENDE-002) |
-| `model.*` | ⏳ Pending (GENDE-002) |
-| `handler.*` | ⏳ Pending (GENDE-002) |
-| `security.*` | ⏳ Pending (GENDE-002) |
-| `routes.*` | ⏳ Pending (GENDE-002) |
-| `queryParams.*` | ⏳ Pending (GENDE-002) |
-| `*BaseClass` | ⏳ Pending (GENDE-002) |
+| `controller.*` | ✅ Implemented |
+| `resource.*` | ✅ Implemented |
+| `formRequest.*` | ✅ Implemented |
+| `model.*` | ✅ Implemented |
+| `handler.*` | ✅ Implemented |
+| `security.*` | ✅ Implemented |
+| `routes.*` | ✅ Implemented |
+| `queryParams.*` | ✅ Implemented |
+| `*BaseClass` | ✅ Implemented |
+| `*.final` | ✅ Implemented |
