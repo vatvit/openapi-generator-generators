@@ -2,34 +2,15 @@
 
 namespace {{{modelPackage}}};
 
-/**
- * {{className}}
- *
- * Auto-generated Query Parameters DTO for {{operationId}} operation
- * Typed query parameters with defaults
- *
- * OpenAPI Operation: {{operationId}}
- * HTTP Method: {{httpMethod}} {{path}}
- */
 {{#queryParamsFinal}}final {{/queryParamsFinal}}class {{className}}
 {
-    /**
-{{#queryParams}}
-     * @param {{phpType}} ${{paramName}} {{description}}
-{{/queryParams}}
-     */
     public function __construct(
 {{#queryParams}}
         public {{phpType}} ${{paramName}}{{#hasDefault}} = {{{defaultValue}}}{{/hasDefault}},
 {{/queryParams}}
     ) {}
 
-    /**
-     * Create from query parameters array
-     *
-     * @param array<string, mixed> $query Validated query parameters
-     * @return self
-     */
+    /** @param array<string, mixed> $query */
     public static function fromQuery(array $query): self
     {
         return new self(
@@ -53,11 +34,7 @@ namespace {{{modelPackage}}};
         );
     }
 
-    /**
-     * Convert to array
-     *
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return [

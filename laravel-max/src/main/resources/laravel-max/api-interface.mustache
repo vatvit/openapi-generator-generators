@@ -32,15 +32,10 @@ interface {{classname}}HandlerInterface
 {{#operation}}
     /**
      * {{summary}}
-     *
 {{#notes}}
-     * {{notes}}
      *
+     * {{notes}}
 {{/notes}}
-{{#allParams}}
-     * @param {{#required}}{{dataType}}{{/required}}{{^required}}{{dataType}}|null{{/required}} ${{paramName}} {{description}}
-{{/allParams}}
-     * @return {{#responses}}{{operationIdCamelCase}}{{code}}Resource{{^-last}}|{{/-last}}{{/responses}}
      */
     public function {{operationId}}(
 {{#allParams}}

@@ -299,25 +299,8 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     }
     sb.append("\n");
 
-    // Class doc
-    sb.append("/**\n");
-    sb.append(" * ").append(data.get("classname")).append("\n");
-    sb.append(" *\n");
-    sb.append(" * Auto-generated Laravel Resource for ").append(data.get("operationId")).append(" operation (HTTP ").append(data.get("code")).append(")\n");
-    sb.append(" *\n");
-    sb.append(" * OpenAPI Operation: ").append(data.get("operationId")).append("\n");
-    sb.append(" * Response: ").append(data.get("code")).append(" ").append(data.get("message")).append("\n");
-    sb.append(" * Schema: ").append(baseType).append("\n");
-
     @SuppressWarnings("unchecked")
     List<Map<String, Object>> headers = (List<Map<String, Object>>) data.get("headers");
-    if (headers != null) {
-      for (Map<String, Object> header : headers) {
-        sb.append(" * Header: ").append(header.get("headerName")).append(" ");
-        sb.append(Boolean.TRUE.equals(header.get("required")) ? "(REQUIRED)" : "(optional)").append("\n");
-      }
-    }
-    sb.append(" */\n");
 
     // Class declaration - use short class name from base class
     String resourceBaseClassName = resourceBaseClass.contains("\\")
@@ -329,30 +312,17 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     sb.append("class ").append(data.get("classname")).append(" extends ").append(resourceBaseClassName).append("\n");
     sb.append("{\n");
 
-    // HTTP code property
-    sb.append("    /**\n");
-    sb.append("     * HTTP status code - Hardcoded: ").append(data.get("code")).append("\n");
-    sb.append("     */\n");
     sb.append("    protected int $httpCode = ").append(data.get("code")).append(";\n\n");
 
     // Header properties
     if (headers != null) {
       for (Map<String, Object> header : headers) {
-        sb.append("    /**\n");
-        sb.append("     * ").append(header.get("headerName")).append(" header ");
-        sb.append(Boolean.TRUE.equals(header.get("required")) ? "(REQUIRED)" : "").append("\n");
-        sb.append("     */\n");
         sb.append("    public ?string $").append(header.get("propertyName")).append(" = null;\n\n");
       }
     }
 
     // toArray method
-    sb.append("    /**\n");
-    sb.append("     * Transform the resource into an array.\n");
-    sb.append("     *\n");
-    sb.append("     * @param  \\Illuminate\\Http\\Request  $request\n");
-    sb.append("     * @return array<string, mixed>\n");
-    sb.append("     */\n");
+    sb.append("    /** @return array<string, mixed> */\n");
     sb.append("    public function toArray($request): array\n");
     sb.append("    {\n");
 
@@ -379,20 +349,7 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     sb.append("    }\n\n");
 
     // withResponse method
-    sb.append("    /**\n");
-    sb.append("     * Customize the outgoing response.\n");
-    sb.append("     *\n");
-    sb.append("     * Enforces HTTP ").append(data.get("code")).append(" status code");
-    if (headers != null && !headers.isEmpty()) {
-      sb.append(" and headers");
-    }
-    sb.append("\n");
-    sb.append("     *\n");
-    sb.append("     * @param  \\Illuminate\\Http\\Request  $request\n");
-    sb.append("     * @param  \\Illuminate\\Http\\Response  $response\n");
-    sb.append("     * @return void\n");
-    sb.append("     */\n");
-    sb.append("    public function withResponse($request, $response)\n");
+    sb.append("    public function withResponse($request, $response): void\n");
     sb.append("    {\n");
     sb.append("        // Set hardcoded HTTP ").append(data.get("code")).append(" status\n");
     sb.append("        $response->setStatusCode($this->httpCode);\n\n");
@@ -497,17 +454,6 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
 
     sb.append("use Illuminate\\Http\\JsonResponse;\n\n");
 
-    // Class doc
-    sb.append("/**\n");
-    sb.append(" * ").append(data.get("classname")).append("\n");
-    sb.append(" *\n");
-    sb.append(" * Auto-generated controller for ").append(data.get("operationId")).append(" operation\n");
-    sb.append(" * One controller per operation pattern\n");
-    sb.append(" *\n");
-    sb.append(" * OpenAPI Operation: ").append(data.get("operationId")).append("\n");
-    sb.append(" * HTTP Method: ").append(data.get("httpMethod")).append(" ").append(data.get("path")).append("\n");
-    sb.append(" */\n");
-
     // Class declaration
     if (controllerFinal) {
       sb.append("final ");
@@ -520,44 +466,30 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     sb.append("        private readonly ").append(data.get("apiClassName")).append(" $handler\n");
     sb.append("    ) {}\n\n");
 
-    // __invoke method
-    sb.append("    /**\n");
+    // __invoke method - only add PHPDoc if summary or notes present
     String summary = (String) data.get("summary");
-    if (summary != null && !summary.isEmpty()) {
-      sb.append("     * ").append(summary).append("\n");
-      sb.append("     *\n");
-    }
     String notes = (String) data.get("notes");
-    if (notes != null && !notes.isEmpty()) {
-      sb.append("     * ").append(notes).append("\n");
-      sb.append("     *\n");
+    boolean hasSummary = summary != null && !summary.isEmpty();
+    boolean hasNotes = notes != null && !notes.isEmpty();
+
+    if (hasSummary || hasNotes) {
+      sb.append("    /**\n");
+      if (hasSummary) {
+        sb.append("     * ").append(summary).append("\n");
+      }
+      if (hasNotes) {
+        if (hasSummary) {
+          sb.append("     *\n");
+        }
+        sb.append("     * ").append(notes).append("\n");
+      }
+      sb.append("     */\n");
     }
 
-    // Parameter docs - only document actual method parameters (request + path params)
-    // Query params and body are extracted from request inside the method
-    if (formRequestClassName != null) {
-      sb.append("     * @param ").append(formRequestClassName).append(" $request Validated request with body data\n");
-    } else {
-      sb.append("     * @param Request $request HTTP request\n");
-    }
     List<CodegenParameter> pathParams = (List<CodegenParameter>) data.get("pathParams");
-    if (pathParams != null) {
-      for (CodegenParameter param : pathParams) {
-        sb.append("     * @param ").append(param.dataType).append(" $").append(param.paramName);
-        if (param.description != null && !param.description.isEmpty()) {
-          sb.append(" ").append(param.description);
-        }
-        sb.append("\n");
-      }
-    }
-    sb.append("     * @return JsonResponse\n");
-    sb.append("     */\n");
+    boolean hasPathParams = pathParams != null && !pathParams.isEmpty();
 
     sb.append("    public function __invoke(\n");
-
-    // Always inject Request as first parameter (FormRequest or base Request)
-    // pathParams already declared above for phpdoc
-    boolean hasPathParams = pathParams != null && !pathParams.isEmpty();
 
     if (formRequestClassName != null) {
       sb.append("        ").append(formRequestClassName).append(" $request");
@@ -1221,14 +1153,6 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     sb.append("namespace ").append(formRequestNamespace).append(";\n\n");
     sb.append("use ").append(formRequestBaseClass).append(";\n\n");
 
-    // Class doc
-    sb.append("/**\n");
-    sb.append(" * ").append(data.get("classname")).append("\n");
-    sb.append(" *\n");
-    sb.append(" * Auto-generated FormRequest for ").append(data.get("operationId")).append(" operation\n");
-    sb.append(" * Validation rules extracted from OpenAPI schema\n");
-    sb.append(" */\n");
-
     // Class declaration - use short class name from base class
     String formRequestBaseClassName = formRequestBaseClass.contains("\\")
         ? formRequestBaseClass.substring(formRequestBaseClass.lastIndexOf("\\") + 1)
@@ -1240,20 +1164,13 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     sb.append("{\n");
 
     // authorize() method
-    sb.append("    /**\n");
-    sb.append("     * Determine if the user is authorized to make this request.\n");
-    sb.append("     */\n");
     sb.append("    public function authorize(): bool\n");
     sb.append("    {\n");
     sb.append("        return true;  // Authorization logic should be implemented in middleware\n");
     sb.append("    }\n\n");
 
     // rules() method
-    sb.append("    /**\n");
-    sb.append("     * Get the validation rules that apply to the request.\n");
-    sb.append("     *\n");
-    sb.append("     * @return array<string, \\Illuminate\\Contracts\\Validation\\ValidationRule|array<mixed>|string>\n");
-    sb.append("     */\n");
+    sb.append("    /** @return array<string, \\Illuminate\\Contracts\\Validation\\ValidationRule|array<mixed>|string> */\n");
     sb.append("    public function rules(): array\n");
     sb.append("    {\n");
     sb.append("        return [\n");

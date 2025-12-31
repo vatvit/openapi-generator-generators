@@ -43,21 +43,10 @@ class {{operationIdCamelCase}}Controller
 
     /**
      * {{summary}}
-     *
 {{#notes}}
-     * {{notes}}
      *
+     * {{notes}}
 {{/notes}}
-{{#hasFormParams}}
-     * @param {{operationIdCamelCase}}FormRequest $request Validated request with body data
-{{/hasFormParams}}
-{{^hasFormParams}}
-     * @param Request $request HTTP request
-{{/hasFormParams}}
-{{#pathParams}}
-     * @param {{dataType}} ${{paramName}} {{description}}
-{{/pathParams}}
-     * @return JsonResponse
      */
     public function __invoke(
 {{#hasFormParams}}

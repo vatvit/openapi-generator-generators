@@ -6,14 +6,11 @@
 namespace {{{modelPackage}}};
 
 {{#vendorExtensions.x-is-php-enum}}
+{{#description}}
 /**
- * {{classname}} Enum
- *
- * Auto-generated from OpenAPI schema: {{name}}
- * {{#description}}
  * {{description}}
- * {{/description}}
  */
+{{/description}}
 enum {{classname}}: string
 {
 {{#vendorExtensions.x-enum-cases}}
@@ -22,14 +19,11 @@ enum {{classname}}: string
 }
 {{/vendorExtensions.x-is-php-enum}}
 {{^vendorExtensions.x-is-php-enum}}
+{{#description}}
 /**
- * {{classname}} DTO
- *
- * Auto-generated from OpenAPI schema: {{name}}
- * {{#description}}
  * {{description}}
- * {{/description}}
  */
+{{/description}}
 {{#modelFinal}}final {{/modelFinal}}class {{classname}}
 {
 {{#vars}}
@@ -41,9 +35,6 @@ enum {{classname}}: string
     public {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{{dataType}}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}};
 {{/vars}}
 
-    /**
-     * Constructor
-     */
     public function __construct(
 {{#vars}}
         {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{{dataType}}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}},
@@ -54,12 +45,7 @@ enum {{classname}}: string
 {{/vars}}
     }
 
-    /**
-     * Create from array
-     *
-     * @param array<string, mixed> $data
-     * @return self
-     */
+    /** @param array<string, mixed> $data */
     public static function fromArray(array $data): self
     {
         return new self(
@@ -79,11 +65,7 @@ enum {{classname}}: string
         );
     }
 
-    /**
-     * Convert to array
-     *
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return [
