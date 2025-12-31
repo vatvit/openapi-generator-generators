@@ -145,6 +145,16 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
               var.required = true;
             }
           }
+
+          // Sort vars: required parameters first, then optional
+          // This is needed because PHP requires non-default parameters before default ones
+          model.vars.sort((a, b) -> {
+            boolean aHasDefault = !a.required || a.defaultValue != null;
+            boolean bHasDefault = !b.required || b.defaultValue != null;
+            if (aHasDefault && !bHasDefault) return 1;  // a has default, b doesn't -> b comes first
+            if (!aHasDefault && bHasDefault) return -1; // a doesn't have default, b does -> a comes first
+            return 0; // maintain relative order
+          });
         }
       }
     }
@@ -615,7 +625,7 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
    */
   private String getPhpType(CodegenParameter param) {
     if (param.isArray) {
-      return "array";
+      return param.required ? "array" : "?array";
     }
     if ("int".equals(param.dataType) || "integer".equals(param.dataType)) {
       return param.required ? "int" : "?int";
@@ -1556,16 +1566,23 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
           paramData.put("isString", "string".equals(param.dataType) || param.isString);
           paramData.put("isArray", param.isArray);
 
-          // Handle default value
+          // Handle default value and nullability
+          boolean isNullable = false;
           if (param.defaultValue != null && !param.defaultValue.isEmpty()) {
             paramData.put("hasDefault", true);
             paramData.put("defaultValue", formatDefaultValue(param));
+            // Check if default is null
+            if ("null".equals(param.defaultValue)) {
+              isNullable = true;
+            }
           } else if (!param.required) {
             paramData.put("hasDefault", true);
             paramData.put("defaultValue", "null");
+            isNullable = true;
           } else {
             paramData.put("hasDefault", false);
           }
+          paramData.put("isNullable", isNullable);
 
           queryParams.add(paramData);
         }
