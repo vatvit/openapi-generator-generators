@@ -357,14 +357,18 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     sb.append("    {\n");
 
     if (baseType != null && !baseType.equals("mixed")) {
-      sb.append("        /** @var ").append(baseType).append(" $model */\n");
+      sb.append("        /** @var ").append(baseType).append("|null $model */\n");
       sb.append("        $model = $this->resource;\n\n");
+      sb.append("        // Handle null resource (empty response or error response)\n");
+      sb.append("        if ($model === null) {\n");
+      sb.append("            return [];\n");
+      sb.append("        }\n\n");
       sb.append("        return [\n");
 
       List<CodegenProperty> vars = (List<CodegenProperty>) data.get("vars");
       if (vars != null) {
         for (CodegenProperty var : vars) {
-          sb.append("            '").append(var.baseName).append("' => $model->").append(var.name).append(",\n");
+          sb.append("            '").append(var.baseName).append("' => $model->").append(var.nameInCamelCase).append(",\n");
         }
       }
       sb.append("        ];\n");
@@ -529,10 +533,16 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
       sb.append("     *\n");
     }
 
-    // Parameter docs
-    List<CodegenParameter> allParams = (List<CodegenParameter>) data.get("allParams");
-    if (allParams != null) {
-      for (CodegenParameter param : allParams) {
+    // Parameter docs - only document actual method parameters (request + path params)
+    // Query params and body are extracted from request inside the method
+    if (formRequestClassName != null) {
+      sb.append("     * @param ").append(formRequestClassName).append(" $request Validated request with body data\n");
+    } else {
+      sb.append("     * @param Request $request HTTP request\n");
+    }
+    List<CodegenParameter> pathParams = (List<CodegenParameter>) data.get("pathParams");
+    if (pathParams != null) {
+      for (CodegenParameter param : pathParams) {
         sb.append("     * @param ").append(param.dataType).append(" $").append(param.paramName);
         if (param.description != null && !param.description.isEmpty()) {
           sb.append(" ").append(param.description);
@@ -546,7 +556,7 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     sb.append("    public function __invoke(\n");
 
     // Always inject Request as first parameter (FormRequest or base Request)
-    List<CodegenParameter> pathParams = (List<CodegenParameter>) data.get("pathParams");
+    // pathParams already declared above for phpdoc
     boolean hasPathParams = pathParams != null && !pathParams.isEmpty();
 
     if (formRequestClassName != null) {
@@ -582,28 +592,68 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
       sb.append("        $dto = ").append(bodyParam.dataType).append("::fromArray($request->validated());\n\n");
     }
 
-    sb.append("        // Delegate to Handler\n");
-    sb.append("        $resource = $this->handler->").append(data.get("operationId")).append("(\n");
-
-    // Pass parameters to handler
-    if (hasBodyParam != null && hasBodyParam) {
-      sb.append("            $dto");
-      if (pathParams != null && !pathParams.isEmpty()) {
-        sb.append(",\n");
-      } else {
-        sb.append("\n");
+    // Extract query parameters from request
+    List<CodegenParameter> queryParams = (List<CodegenParameter>) data.get("queryParams");
+    boolean hasQueryParams = queryParams != null && !queryParams.isEmpty();
+    if (hasQueryParams) {
+      sb.append("        // Extract query parameters\n");
+      for (CodegenParameter param : queryParams) {
+        sb.append("        $").append(param.paramName).append(" = ");
+        if (param.isArray) {
+          sb.append("$request->query('").append(param.baseName).append("', [])");
+        } else {
+          if (param.isInteger) {
+            sb.append("(int) ");
+          }
+          sb.append("$request->query('").append(param.baseName).append("'");
+          if (param.defaultValue != null && !param.defaultValue.isEmpty()) {
+            sb.append(", ").append(param.defaultValue);
+          } else if (param.required) {
+            if (param.isInteger) {
+              sb.append(", 0");
+            }
+          } else {
+            sb.append(", null");
+          }
+          sb.append(")");
+        }
+        sb.append(";\n");
       }
+      sb.append("\n");
     }
 
+    sb.append("        // Delegate to Handler (arguments match HandlerInterface order: path → query → body)\n");
+    sb.append("        $resource = $this->handler->").append(data.get("operationId")).append("(\n");
+
+    // First: path parameters
     if (pathParams != null && !pathParams.isEmpty()) {
       for (int i = 0; i < pathParams.size(); i++) {
         CodegenParameter param = pathParams.get(i);
         sb.append("            $").append(param.paramName);
-        if (i < pathParams.size() - 1) {
+        boolean isLast = (i == pathParams.size() - 1) && !hasQueryParams && !(hasBodyParam != null && hasBodyParam);
+        if (!isLast) {
           sb.append(",");
         }
         sb.append("\n");
       }
+    }
+
+    // Second: query parameters
+    if (hasQueryParams) {
+      for (int i = 0; i < queryParams.size(); i++) {
+        CodegenParameter param = queryParams.get(i);
+        sb.append("            $").append(param.paramName);
+        boolean isLast = (i == queryParams.size() - 1) && !(hasBodyParam != null && hasBodyParam);
+        if (!isLast) {
+          sb.append(",");
+        }
+        sb.append("\n");
+      }
+    }
+
+    // Last: body parameter (DTO)
+    if (hasBodyParam != null && hasBodyParam) {
+      sb.append("            $dto\n");
     }
 
     sb.append("        );\n\n");
@@ -1456,7 +1506,9 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
       controllerData.put("hasPathParams", op.pathParams != null && !op.pathParams.isEmpty());
       controllerData.put("hasBodyParam", op.bodyParam != null);
       controllerData.put("hasFormParams", op.formParams != null && !op.formParams.isEmpty());
+      controllerData.put("hasQueryParams", op.queryParams != null && !op.queryParams.isEmpty());
       controllerData.put("pathParams", op.pathParams);
+      controllerData.put("queryParams", op.queryParams);
       controllerData.put("allParams", op.allParams);
 
       // Add bodyParam with import info
@@ -1595,14 +1647,16 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
         String resourceClassName = toModelName(op.operationId) + response.code + "Resource";
         String resourceFileName = resourceClassName + ".php";
 
-        // Detect if this is a collection response (has pagination headers)
-        boolean isCollection = response.headers != null && !response.headers.isEmpty() &&
+        // Detect if this is a collection response
+        // Must be an array type AND have pagination headers
+        boolean hasPaginationHeaders = response.headers != null && !response.headers.isEmpty() &&
             response.headers.stream().anyMatch(h ->
                 h.baseName != null && (
                     h.baseName.toLowerCase().contains("total") ||
                     h.baseName.toLowerCase().contains("page") ||
                     h.baseName.toLowerCase().contains("count")
                 ));
+        boolean isCollection = response.isArray && hasPaginationHeaders;
 
         // Create a data map to pass to the resource template
         Map<String, Object> resourceData = new HashMap<>();

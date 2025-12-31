@@ -68,7 +68,12 @@ enum {{classname}}: string
             {{nameInCamelCase}}: isset($data['{{baseName}}']) ? new \DateTime($data['{{baseName}}']) : {{^required}}null{{/required}}{{#required}}throw new \InvalidArgumentException('{{baseName}} is required'){{/required}},
 {{/isDateTime}}
 {{^isDateTime}}
-            {{nameInCamelCase}}: $data['{{baseName}}']{{^required}} ?? null{{/required}},
+{{#isEnumRef}}
+            {{nameInCamelCase}}: {{#required}}{{{dataType}}}::from($data['{{baseName}}']){{/required}}{{^required}}isset($data['{{baseName}}']) ? {{{dataType}}}::from($data['{{baseName}}']) : null{{/required}},
+{{/isEnumRef}}
+{{^isEnumRef}}
+            {{nameInCamelCase}}: $data['{{baseName}}']{{^required}}{{#defaultValue}} ?? {{{defaultValue}}}{{/defaultValue}}{{^defaultValue}} ?? null{{/defaultValue}}{{/required}},
+{{/isEnumRef}}
 {{/isDateTime}}
 {{/vars}}
         );

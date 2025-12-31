@@ -1,7 +1,7 @@
 # Laravel-Max Custom Generator Makefile
 # This is a custom Java generator that must be built before use
 
-OPENAPI_GENERATOR_VERSION := 7.10.0
+OPENAPI_GENERATOR_VERSION := 7.18.0
 JAR_NAME := laravel-max-openapi-generator-1.0.0.jar
 CLI_JAR := openapi-generator-cli-$(OPENAPI_GENERATOR_VERSION).jar
 

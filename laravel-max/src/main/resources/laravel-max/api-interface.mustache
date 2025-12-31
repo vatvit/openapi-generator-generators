@@ -38,13 +38,13 @@ interface {{classname}}HandlerInterface
      *
 {{/notes}}
 {{#allParams}}
-     * @param {{dataType}} ${{paramName}} {{description}}
+     * @param {{#required}}{{dataType}}{{/required}}{{^required}}{{dataType}}|null{{/required}} ${{paramName}} {{description}}
 {{/allParams}}
      * @return {{#responses}}{{operationIdCamelCase}}{{code}}Resource{{^-last}}|{{/-last}}{{/responses}}
      */
     public function {{operationId}}(
 {{#allParams}}
-        {{dataType}} ${{paramName}}{{^-last}},{{/-last}}
+        {{#required}}{{dataType}}{{/required}}{{^required}}{{dataType}}|null{{/required}} ${{paramName}}{{^required}} = null{{/required}}{{^-last}},{{/-last}}
 {{/allParams}}
     ): {{#responses}}{{operationIdCamelCase}}{{code}}Resource{{^-last}}|{{/-last}}{{/responses}};
 

@@ -45,25 +45,35 @@ class {{classname}}Resource extends JsonResource
     public function toArray($request): array
     {
 {{#isArray}}
-        /** @var {{baseType}}[] $models */
+        /** @var {{baseType}}[]|null $models */
         $models = $this->resource;
+
+        // Handle null resource (empty response or default error)
+        if ($models === null) {
+            return [];
+        }
 
         // Response is an array of {{baseType}} objects
         return array_map(function($model) {
             return [
 {{#vars}}
-                '{{baseName}}' => $model->{{name}},
+                '{{baseName}}' => $model->{{nameInCamelCase}},
 {{/vars}}
             ];
         }, $models);
 {{/isArray}}
 {{^isArray}}
-        /** @var {{baseType}} $model */
+        /** @var {{baseType}}|null $model */
         $model = $this->resource;
+
+        // Handle null resource (empty response or default error)
+        if ($model === null) {
+            return [];
+        }
 
         return [
 {{#vars}}
-            '{{baseName}}' => $model->{{name}},
+            '{{baseName}}' => $model->{{nameInCamelCase}},
 {{/vars}}
         ];
 {{/isArray}}
