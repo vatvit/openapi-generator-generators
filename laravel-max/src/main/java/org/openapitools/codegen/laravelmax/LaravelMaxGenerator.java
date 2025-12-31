@@ -1402,7 +1402,7 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     if (handlerClassName.endsWith("Api")) {
       handlerClassName = handlerClassName.substring(0, handlerClassName.length() - 3);
     }
-    handlerClassName = handlerClassName + "Handler";
+    handlerClassName = handlerClassName + "HandlerInterface";
 
     // Add handler class name to results for template use
     results.put("handlerClassName", handlerClassName);
@@ -1452,9 +1452,9 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
       String controllerClassName = toModelName(op.operationId) + "Controller";
       String controllerFileName = controllerClassName + ".php";
 
-      // Get Handler class name from operations map
-      // Use classname + "Handler" to match the generated interface file name
-      String apiClassName = ops.getClassname() + "Handler";
+      // Get Handler interface class name from operations map
+      // Use classname + "HandlerInterface" to match the generated interface file name
+      String apiClassName = ops.getClassname() + "HandlerInterface";
 
       Map<String, Object> controllerData = new HashMap<>();
       controllerData.put("classname", controllerClassName);
@@ -1850,7 +1850,7 @@ public class LaravelMaxGenerator extends AbstractPhpCodegen implements CodegenCo
     // Controllers are generated via custom Java code in postProcessOperationsWithModels()
     apiTemplateFiles.put(
       "api-interface.mustache", // Handler interface with union types
-      "Handler.php");           // e.g., GameManagementHandler.php
+      "HandlerInterface.php");  // e.g., GameManagementHandlerInterface.php
 
     /**
      * Template Location: laravel-max templates directory
