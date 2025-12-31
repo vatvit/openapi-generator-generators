@@ -1,0 +1,77 @@
+<?php declare(strict_types=1);
+
+namespace {{apiPackage}}\Http\Resources;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+
+/**
+ * {{className}}
+ *
+ * Auto-generated Laravel Resource from OpenAPI schema: {{schemaName}}
+ * Enforces {{httpCode}} {{httpStatus}} error response structure
+ *
+ * PSR-4 COMPLIANT: One class per file
+ */
+class {{className}} extends JsonResource
+{
+    /**
+     * HTTP status code for this response
+     * Hardcoded: {{httpCode}} {{httpStatus}}
+     *
+     * @var int
+     */
+    protected int $httpCode = {{httpCode}};
+
+    /**
+     * Transform the resource into an array.
+     *
+     * Structure enforced by OpenAPI schema: {{schemaName}}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array<string, mixed>
+     */
+    public function toArray($request): array
+    {
+        return [
+            'error' => '{{httpStatus}}',
+            'message' => $this->resource['message'] ?? '{{defaultMessage}}',
+{{#hasCode}}
+            'code' => $this->resource['code'] ?? '{{defaultCode}}',
+{{/hasCode}}
+{{#hasErrors}}
+            'errors' => $this->resource['errors'] ?? [],
+{{/hasErrors}}
+        ];
+    }
+
+    /**
+     * Customize the outgoing response.
+     *
+     * Enforces HTTP {{httpCode}} status code
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Response  $response
+     * @return void
+     */
+    public function withResponse($request, $response)
+    {
+        $response->setStatusCode($this->httpCode);
+    }
+
+    /**
+     * Create error resource with message
+     *
+     * @param string $message Error message
+     * @param string|null $code Error code (optional)
+     * @return static
+     */
+    public static function error(string $message{{#hasCode}}, ?string $code = null{{/hasCode}}): static
+    {
+        return new static([
+            'message' => $message,
+{{#hasCode}}
+            'code' => $code ?? '{{defaultCode}}',
+{{/hasCode}}
+        ]);
+    }
+}

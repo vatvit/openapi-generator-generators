@@ -1,0 +1,63 @@
+{{>licenseInfo}}
+<?php
+
+declare(strict_types=1);
+
+namespace {{apiPackage}}\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+/**
+ * {{operationIdCamelCase}}Request
+ *
+ * Auto-generated Laravel FormRequest for {{operationId}} operation
+ * Validation rules generated from OpenAPI schema
+ *
+ * OpenAPI Operation: {{operationId}}
+ * HTTP Method: {{httpMethod}} {{path}}
+ */
+class {{operationIdCamelCase}}Request extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize(): bool
+    {
+        return true; // Override in your application
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * Generated from OpenAPI schema
+     *
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        return [
+{{#bodyParam}}
+{{#vars}}
+            '{{baseName}}' => '{{#required}}required{{/required}}{{^required}}sometimes{{/required}}{{#isString}}|string{{/isString}}{{#isInteger}}|integer{{/isInteger}}{{#isBoolean}}|boolean{{/isBoolean}}{{#isArray}}|array{{/isArray}}{{#minLength}}|min:{{minLength}}{{/minLength}}{{#maxLength}}|max:{{maxLength}}{{/maxLength}}',
+{{/vars}}
+{{/bodyParam}}
+{{#formParams}}
+            '{{baseName}}' => '{{#required}}required{{/required}}{{^required}}sometimes{{/required}}{{#isString}}|string{{/isString}}{{#isInteger}}|integer{{/isInteger}}{{#isBoolean}}|boolean{{/isBoolean}}{{#isArray}}|array{{/isArray}}{{#minLength}}|min:{{minLength}}{{/minLength}}{{#maxLength}}|max:{{maxLength}}{{/maxLength}}',
+{{/formParams}}
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            // Add custom validation messages here
+        ];
+    }
+}

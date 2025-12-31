@@ -1,0 +1,69 @@
+<?php declare(strict_types=1);
+
+namespace {{{modelPackage}}};
+
+/**
+ * {{className}}
+ *
+ * Auto-generated Query Parameters DTO for {{operationId}} operation
+ * Typed query parameters with defaults
+ *
+ * OpenAPI Operation: {{operationId}}
+ * HTTP Method: {{httpMethod}} {{path}}
+ */
+class {{className}}
+{
+    /**
+{{#queryParams}}
+     * @param {{phpType}} ${{paramName}} {{description}}
+{{/queryParams}}
+     */
+    public function __construct(
+{{#queryParams}}
+        public {{phpType}} ${{paramName}}{{#hasDefault}} = {{{defaultValue}}}{{/hasDefault}},
+{{/queryParams}}
+    ) {}
+
+    /**
+     * Create from query parameters array
+     *
+     * @param array<string, mixed> $query Validated query parameters
+     * @return self
+     */
+    public static function fromQuery(array $query): self
+    {
+        return new self(
+{{#queryParams}}
+{{#isInteger}}
+            {{paramName}}: isset($query['{{baseName}}']) ? (int) $query['{{baseName}}'] : {{{defaultValue}}},
+{{/isInteger}}
+{{#isNumber}}
+            {{paramName}}: isset($query['{{baseName}}']) ? (float) $query['{{baseName}}'] : {{{defaultValue}}},
+{{/isNumber}}
+{{#isBoolean}}
+            {{paramName}}: isset($query['{{baseName}}']) ? (bool) $query['{{baseName}}'] : {{{defaultValue}}},
+{{/isBoolean}}
+{{#isString}}
+            {{paramName}}: $query['{{baseName}}'] ?? {{{defaultValue}}},
+{{/isString}}
+{{#isArray}}
+            {{paramName}}: $query['{{baseName}}'] ?? {{{defaultValue}}},
+{{/isArray}}
+{{/queryParams}}
+        );
+    }
+
+    /**
+     * Convert to array
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+{{#queryParams}}
+            '{{baseName}}' => $this->{{paramName}},
+{{/queryParams}}
+        ];
+    }
+}

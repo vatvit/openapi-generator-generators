@@ -1,0 +1,117 @@
+<?php declare(strict_types=1);
+
+namespace {{apiPackage}}\Http\Resources;
+
+use Illuminate\Http\Resources\Json\ResourceCollection;
+
+/**
+ * {{className}}
+ *
+ * Auto-generated Laravel ResourceCollection for {{operationId}} operation
+ * Handles array responses with pagination headers
+ *
+ * OpenAPI Operation: {{operationId}}
+ * HTTP Method: {{httpMethod}} {{path}}
+ * Response Code: {{code}}
+ *
+ * PSR-4 COMPLIANT: One class per file
+ */
+class {{className}} extends ResourceCollection
+{
+    /**
+     * HTTP status code for this response
+     * Hardcoded: {{code}}
+     *
+     * @var int
+     */
+    protected int $httpCode = {{code}};
+
+{{#headers}}
+    /**
+     * {{description}}
+     * {{#required}}REQUIRED{{/required}}{{^required}}OPTIONAL{{/required}}
+     *
+     * @var {{phpType}}
+     */
+    public {{phpType}} ${{propertyName}}{{^required}} = null{{/required}};
+
+{{/headers}}
+    /**
+     * The resource that this resource collects.
+     *
+     * @var string
+     */
+    public $collects = {{itemResourceClass}}::class;
+
+    /**
+     * Transform the resource collection into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array<string, mixed>
+     */
+    public function toArray($request): array
+    {
+        return $this->collection->toArray();
+    }
+
+    /**
+     * Customize the outgoing response.
+     *
+     * Enforces HTTP {{code}} status code and pagination headers
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Response  $response
+     * @return void
+     */
+    public function withResponse($request, $response)
+    {
+        $response->setStatusCode($this->httpCode);
+
+{{#headers}}
+{{#required}}
+        // REQUIRED header: {{headerName}}
+        if ($this->{{propertyName}} === null) {
+            throw new \RuntimeException(
+                '{{headerName}} header is REQUIRED for {{className}} but was not set. ' .
+                'Set $resource->{{propertyName}} in your handler.'
+            );
+        }
+        $response->header('{{headerName}}', (string) $this->{{propertyName}});
+
+{{/required}}
+{{^required}}
+        // OPTIONAL header: {{headerName}}
+        if ($this->{{propertyName}} !== null) {
+            $response->header('{{headerName}}', (string) $this->{{propertyName}});
+        }
+
+{{/required}}
+{{/headers}}
+    }
+
+    /**
+     * Set pagination metadata
+     *
+     * @param int $totalCount Total number of items
+     * @param int|null $pageNumber Current page number
+     * @param int|null $pageSize Items per page
+     * @return static
+     */
+    public function withPagination(int $totalCount, ?int $pageNumber = null, ?int $pageSize = null): static
+    {
+{{#hasXTotalCount}}
+        $this->xTotalCount = $totalCount;
+{{/hasXTotalCount}}
+{{#hasXPageNumber}}
+        if ($pageNumber !== null) {
+            $this->xPageNumber = $pageNumber;
+        }
+{{/hasXPageNumber}}
+{{#hasXPageSize}}
+        if ($pageSize !== null) {
+            $this->xPageSize = $pageSize;
+        }
+{{/hasXPageSize}}
+        return $this;
+    }
+}

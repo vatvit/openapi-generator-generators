@@ -1,0 +1,98 @@
+{{#models}}
+{{#model}}
+<?php declare(strict_types=1);
+
+{{>licenseInfo}}
+namespace {{{modelPackage}}};
+
+{{#vendorExtensions.x-is-php-enum}}
+/**
+ * {{classname}} Enum
+ *
+ * Auto-generated from OpenAPI schema: {{name}}
+ * {{#description}}
+ * {{description}}
+ * {{/description}}
+ */
+enum {{classname}}: string
+{
+{{#vendorExtensions.x-enum-cases}}
+    case {{name}} = '{{value}}';
+{{/vendorExtensions.x-enum-cases}}
+}
+{{/vendorExtensions.x-is-php-enum}}
+{{^vendorExtensions.x-is-php-enum}}
+/**
+ * {{classname}} DTO
+ *
+ * Auto-generated from OpenAPI schema: {{name}}
+ * {{#description}}
+ * {{description}}
+ * {{/description}}
+ */
+class {{classname}}
+{
+{{#vars}}
+{{#description}}
+    /**
+     * {{description}}
+     */
+{{/description}}
+    public {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{{dataType}}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}};
+{{/vars}}
+
+    /**
+     * Constructor
+     */
+    public function __construct(
+{{#vars}}
+        {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{{dataType}}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}},
+{{/vars}}
+    ) {
+{{#vars}}
+        $this->{{nameInCamelCase}} = ${{nameInCamelCase}};
+{{/vars}}
+    }
+
+    /**
+     * Create from array
+     *
+     * @param array<string, mixed> $data
+     * @return self
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+{{#vars}}
+{{#isDateTime}}
+            {{nameInCamelCase}}: isset($data['{{baseName}}']) ? new \DateTime($data['{{baseName}}']) : {{^required}}null{{/required}}{{#required}}throw new \InvalidArgumentException('{{baseName}} is required'){{/required}},
+{{/isDateTime}}
+{{^isDateTime}}
+            {{nameInCamelCase}}: $data['{{baseName}}']{{^required}} ?? null{{/required}},
+{{/isDateTime}}
+{{/vars}}
+        );
+    }
+
+    /**
+     * Convert to array
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+{{#vars}}
+{{#isDateTime}}
+            '{{baseName}}' => $this->{{nameInCamelCase}}?->format(\DateTime::ATOM),
+{{/isDateTime}}
+{{^isDateTime}}
+            '{{baseName}}' => $this->{{nameInCamelCase}},
+{{/isDateTime}}
+{{/vars}}
+        ];
+    }
+}
+{{/vendorExtensions.x-is-php-enum}}
+{{/model}}
+{{/models}}

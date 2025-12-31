@@ -1,0 +1,53 @@
+<?php declare(strict_types=1);
+
+{{>licenseInfo}}
+namespace {{{apiPackage}}}\Handlers;
+
+{{#imports}}
+use {{import}};
+{{/imports}}
+{{#operations}}
+{{#operation}}
+{{#responses}}
+use {{apiPackage}}\Http\Resources\{{operationIdCamelCase}}{{code}}Resource;
+{{/responses}}
+{{/operation}}
+{{/operations}}
+
+/**
+ * {{classname}}Handler
+ *
+ * Handler interface - implement this to provide business logic
+ * Returns Resources with compile-time type safety via union types
+ *
+{{#operations}}
+{{#operation}}
+ * Operation: {{operationId}}
+{{/operation}}
+{{/operations}}
+ */
+interface {{classname}}Handler
+{
+{{#operations}}
+{{#operation}}
+    /**
+     * {{summary}}
+     *
+{{#notes}}
+     * {{notes}}
+     *
+{{/notes}}
+{{#allParams}}
+     * @param {{dataType}} ${{paramName}} {{description}}
+{{/allParams}}
+     * @return {{#responses}}{{operationIdCamelCase}}{{code}}Resource{{^-last}}|{{/-last}}{{/responses}}
+     */
+    public function {{operationId}}(
+{{#allParams}}
+        {{dataType}} ${{paramName}}{{^-last}},{{/-last}}
+{{/allParams}}
+    ): {{#responses}}{{operationIdCamelCase}}{{code}}Resource{{^-last}}|{{/-last}}{{/responses}};
+
+{{/operation}}
+{{/operations}}
+}

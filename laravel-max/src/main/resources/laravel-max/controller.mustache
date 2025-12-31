@@ -1,0 +1,99 @@
+{{#operations}}
+{{>licenseInfo}}
+<?php
+
+declare(strict_types=1);
+
+namespace {{apiPackage}}\Http\Controllers;
+
+use {{apiPackage}}\Api\{{classname}}Api;
+{{#operation}}
+{{#hasFormParams}}
+use {{apiPackage}}\Http\Requests\{{operationIdCamelCase}}Request;
+{{/hasFormParams}}
+{{#bodyParam}}
+{{#vendorExtensions.x-importClassName}}use {{modelPackage}}\{{vendorExtensions.x-importClassName}};{{/vendorExtensions.x-importClassName}}
+{{/bodyParam}}
+{{/operation}}
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+/**
+ * Controllers for {{classname}} API
+ *
+ * NOTE: Multiple controllers in one file (grouped by API)
+ * TODO: Refactor to separate files (one controller per operation)
+ */
+
+{{#operation}}
+/**
+ * {{operationIdCamelCase}}Controller
+ *
+ * Auto-generated controller for {{operationId}} operation
+ * One controller per operation pattern
+ *
+ * OpenAPI Operation: {{operationId}}
+ * HTTP Method: {{httpMethod}} {{path}}
+ */
+class {{operationIdCamelCase}}Controller
+{
+    public function __construct(
+        private readonly {{classname}}Api $handler
+    ) {}
+
+    /**
+     * {{summary}}
+     *
+{{#notes}}
+     * {{notes}}
+     *
+{{/notes}}
+{{#allParams}}
+     * @param {{dataType}} ${{paramName}} {{description}}
+{{/allParams}}
+     * @return JsonResponse
+     */
+    public function __invoke(
+{{#hasFormParams}}
+        {{operationIdCamelCase}}Request $request{{#hasPathParams}},{{/hasPathParams}}
+{{/hasFormParams}}
+{{^hasFormParams}}
+        Request $request{{#hasPathParams}},{{/hasPathParams}}
+{{/hasFormParams}}
+{{#pathParams}}
+        {{dataType}} ${{paramName}}{{^-last}},{{/-last}}
+{{/pathParams}}
+    ): JsonResponse
+    {
+{{#hasBodyParam}}
+        // Convert validated data to DTO
+        $dto = {{bodyParam.dataType}}::fromArray($request->validated());
+
+{{/hasBodyParam}}
+{{#hasQueryParams}}
+        // Extract query parameters
+{{#queryParams}}
+        ${{paramName}} = {{#isArray}}$request->query('{{baseName}}', []){{/isArray}}{{^isArray}}{{#isInteger}}(int) {{/isInteger}}$request->query('{{baseName}}'{{#defaultValue}}, {{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}{{#required}}, 0{{/required}}{{^required}}, {{#isInteger}}0{{/isInteger}}{{^isInteger}}null{{/isInteger}}{{/required}}{{/defaultValue}}){{/isArray}};
+{{/queryParams}}
+
+{{/hasQueryParams}}
+        // Delegate to Handler
+        $resource = $this->handler->{{operationId}}(
+{{#hasBodyParam}}
+            $dto{{#hasQueryParams}},{{/hasQueryParams}}{{#hasPathParams}},{{/hasPathParams}}
+{{/hasBodyParam}}
+{{#queryParams}}
+            ${{paramName}}{{^-last}},{{/-last}}{{#-last}}{{#hasPathParams}},{{/hasPathParams}}{{/-last}}
+{{/queryParams}}
+{{#pathParams}}
+            ${{paramName}}{{^-last}},{{/-last}}
+{{/pathParams}}
+        );
+
+        // Resource enforces HTTP code and headers
+        return $resource->response($request);
+    }
+}
+
+{{/operation}}
+{{/operations}}

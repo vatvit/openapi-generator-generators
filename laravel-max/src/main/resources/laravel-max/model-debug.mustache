@@ -1,0 +1,23 @@
+{{>licenseInfo}}
+<?php
+
+// DEBUG TEMPLATE - Testing what variables are available
+
+// classname: {{classname}}
+// name: {{name}}
+// description: {{description}}
+// modelPackage: {{modelPackage}}
+// apiPackage: {{apiPackage}}
+
+// Has vars? {{#vars}}YES{{/vars}}{{^vars}}NO{{/vars}}
+
+// All vars:
+{{#vars}}
+// - {{name}}: {{dataType}} ({{baseName}})
+{{/vars}}
+
+namespace {{modelPackage}};
+
+class {{classname}} {
+    // Testing...
+}

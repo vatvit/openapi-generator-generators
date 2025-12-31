@@ -1,0 +1,113 @@
+{{>licenseInfo}}
+<?php
+
+declare(strict_types=1);
+
+namespace {{apiPackage}}\Http\Resources;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+use {{modelPackage}}\{{baseType}};
+
+/**
+ * {{classname}}Resource
+ *
+ * Auto-generated Laravel Resource for {{operationId}} operation (HTTP {{code}})
+ *
+ * OpenAPI Operation: {{operationId}}
+ * Response: {{code}} {{message}}
+ * Schema: {{baseType}}
+{{#headers}}
+ * Header: {{baseName}} {{#required}}(REQUIRED){{/required}}{{^required}}(optional){{/required}}
+{{/headers}}
+ */
+class {{classname}}Resource extends JsonResource
+{
+{{^isDefault}}
+    /**
+     * HTTP status code - Hardcoded: {{code}}
+     */
+    protected int $httpCode = {{code}};
+
+{{/isDefault}}
+{{#headers}}
+    /**
+     * {{baseName}} header {{#required}}(REQUIRED){{/required}}
+     */
+    public ?string ${{nameInCamelCase}} = null;
+
+{{/headers}}
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array<string, mixed>
+     */
+    public function toArray($request): array
+    {
+{{#isArray}}
+        /** @var {{baseType}}[] $models */
+        $models = $this->resource;
+
+        // Response is an array of {{baseType}} objects
+        return array_map(function($model) {
+            return [
+{{#vars}}
+                '{{baseName}}' => $model->{{name}},
+{{/vars}}
+            ];
+        }, $models);
+{{/isArray}}
+{{^isArray}}
+        /** @var {{baseType}} $model */
+        $model = $this->resource;
+
+        return [
+{{#vars}}
+            '{{baseName}}' => $model->{{name}},
+{{/vars}}
+        ];
+{{/isArray}}
+    }
+
+    /**
+     * Customize the outgoing response.
+     *
+     * Enforces HTTP {{code}} status code{{#headers}} and headers{{/headers}}
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Response  $response
+     * @return void
+     */
+    public function withResponse($request, $response)
+    {
+{{#isDefault}}
+        // For default/error responses, use dynamic status from Error model
+        /** @var {{baseType}} $model */
+        $model = $this->resource;
+        $response->setStatusCode($model->code);
+{{/isDefault}}
+{{^isDefault}}
+        // Set hardcoded HTTP {{code}} status
+        $response->setStatusCode($this->httpCode);
+{{/isDefault}}
+
+{{#headers}}
+{{#required}}
+        // {{baseName}} header is REQUIRED
+        if ($this->{{nameInCamelCase}} === null) {
+            throw new \RuntimeException(
+                '{{baseName}} header is REQUIRED for {{operationId}} (HTTP {{code}}) but was not set'
+            );
+        }
+{{/required}}
+{{^required}}
+        // {{baseName}} header is optional
+        if ($this->{{nameInCamelCase}} !== null) {
+{{/required}}
+            $response->header('{{baseName}}', $this->{{nameInCamelCase}});
+{{^required}}
+        }
+{{/required}}
+{{/headers}}
+    }
+}

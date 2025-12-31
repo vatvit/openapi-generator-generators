@@ -1,0 +1,102 @@
+<?php declare(strict_types=1);
+
+{{>licenseInfo}}
+/**
+ * GENERATED API ROUTES
+ *
+ * This file is generated from OpenAPI specification.
+ * Routes use flexible middleware groups that you define in bootstrap/app.php
+ *
+ * SECURITY MIDDLEWARE GROUPS:
+ *
+ * For operations with security requirements, middleware groups follow this naming convention:
+ *   'api.security.{securitySchemeName}'
+ *
+ * Define middleware groups in your application's bootstrap/app.php:
+ *
+ * ```php
+ * ->withMiddleware(function (Middleware $middleware): void {
+{{#securitySchemes}}
+ *     // {{name}} security scheme ({{type}})
+ *     $middleware->group('api.security.{{name}}', [
+ *         \YourApp\Http\Middleware\Authenticate{{name}}::class,
+ *     ]);
+{{/securitySchemes}}
+ * })
+ * ```
+ *
+ * IMPORTANT: Middleware must implement the corresponding security interface:
+{{#securitySchemes}}
+ * - api.security.{{name}} → {{invokerPackage}}\Security\{{interfaceName}}
+{{/securitySchemes}}
+ *
+ * The SecurityValidator will check middleware configuration in debug mode (APP_DEBUG=true).
+ */
+
+use Illuminate\Support\Facades\Route;
+{{#apiInfo}}
+{{#allOperations}}
+use {{apiPackage}}\Http\Controllers\{{operationIdCamelCase}}Controller;
+{{/allOperations}}
+{{/apiInfo}}
+use {{invokerPackage}}\Security\SecurityValidator;
+
+{{#apiInfo}}
+{{#allOperations}}
+
+/**
+ * {{httpMethod}} {{path}}
+ * {{summary}}
+{{#notes}}
+ *
+ * {{notes}}
+{{/notes}}
+ *
+ * OpenAPI operation: {{operationId}}
+{{#hasAuthMethods}}
+ *
+ * Security Requirements:
+{{#authMethods}}
+ * - {{name}} ({{type}}){{#description}} - {{description}}{{/description}}
+{{#scopes}}
+ *   Scopes: {{#scopes}}{{scope}}{{^-last}}, {{/-last}}{{/scopes}}
+{{/scopes}}
+{{/authMethods}}
+ *
+ * Middleware Configuration (in bootstrap/app.php):
+ * ```php
+ * $middleware->group('api.security.{{operationId}}', [
+{{#authMethods}}
+ *     \YourApp\Http\Middleware\Authenticate{{name}}::class,  // Must implement {{invokerPackage}}\Security\{{interfaceName}}
+{{/authMethods}}
+ * ]);
+ * ```
+{{/hasAuthMethods}}
+ */
+Route::{{#lambda.lowercase}}{{httpMethod}}{{/lambda.lowercase}}('{{path}}', {{operationIdCamelCase}}Controller::class)
+    ->name('{{operationId}}'){{#hasAuthMethods}}
+    ->middleware('api.security.{{operationId}}'){{/hasAuthMethods}};
+{{/allOperations}}
+{{/apiInfo}}
+
+
+// ============================================================================
+// Security Middleware Validation (Auto-generated)
+// ============================================================================
+// Validates that all required security middleware is properly configured
+// Only runs when APP_DEBUG=true (development mode)
+// ============================================================================
+
+if (config('app.debug', false) && class_exists(SecurityValidator::class)) {
+    try {
+        SecurityValidator::validateMiddleware(app('router'));
+    } catch (\RuntimeException $e) {
+        // Log validation errors
+        error_log("Security middleware validation failed:");
+        error_log($e->getMessage());
+
+        // In debug mode, throw exception to catch issues early
+        // Comment out the line below if you want routes to load despite validation errors
+        throw $e;
+    }
+}
