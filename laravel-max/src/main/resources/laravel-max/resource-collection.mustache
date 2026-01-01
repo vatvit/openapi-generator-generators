@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace {{apiPackage}}\Http\Resources;
 
@@ -60,10 +62,10 @@ class {{className}} extends ResourceCollection
      * Enforces HTTP {{code}} status code and pagination headers
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Http\Response  $response
+     * @param  \Illuminate\Http\JsonResponse  $response
      * @return void
      */
-    public function withResponse($request, $response)
+    public function withResponse($request, \Illuminate\Http\JsonResponse $response): void
     {
         $response->setStatusCode($this->httpCode);
 

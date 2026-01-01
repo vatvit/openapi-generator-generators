@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace {{apiPackage}}\Http\Resources;
 
@@ -50,10 +52,10 @@ class {{className}} extends JsonResource
      * Enforces HTTP {{httpCode}} status code
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Http\Response  $response
+     * @param  \Illuminate\Http\JsonResponse  $response
      * @return void
      */
-    public function withResponse($request, $response)
+    public function withResponse($request, \Illuminate\Http\JsonResponse $response): void
     {
         $response->setStatusCode($this->httpCode);
     }
@@ -62,12 +64,14 @@ class {{className}} extends JsonResource
      * Create error resource with message
      *
      * @param string $message Error message
+{{#hasCode}}
      * @param string|null $code Error code (optional)
-     * @return static
+{{/hasCode}}
+     * @return self
      */
-    public static function error(string $message{{#hasCode}}, ?string $code = null{{/hasCode}}): static
+    public static function error(string $message{{#hasCode}}, ?string $code = null{{/hasCode}}): self
     {
-        return new static([
+        return new self([
             'message' => $message,
 {{#hasCode}}
             'code' => $code ?? '{{defaultCode}}',

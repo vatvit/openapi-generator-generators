@@ -1,8 +1,9 @@
 {{#models}}
 {{#model}}
-<?php declare(strict_types=1);
+<?php
 
-{{>licenseInfo}}
+declare(strict_types=1);
+
 namespace {{{modelPackage}}};
 
 {{#vendorExtensions.x-is-php-enum}}
@@ -30,11 +31,35 @@ enum {{classname}}: string
 {{#description}}
     /**
      * {{description}}
+{{#isArray}}
+     * @var array<mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}}
+{{/isArray}}
+{{#isMap}}
+     * @var array<string, mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}}
+{{/isMap}}
      */
+{{/description}}
+{{^description}}
+{{#isArray}}
+    /** @var array<mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}} */
+{{/isArray}}
+{{#isMap}}
+    /** @var array<string, mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}} */
+{{/isMap}}
 {{/description}}
     public {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{{dataType}}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}};
 {{/vars}}
 
+    /**
+{{#vars}}
+{{#isArray}}
+     * @param array<mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}} ${{nameInCamelCase}}
+{{/isArray}}
+{{#isMap}}
+     * @param array<string, mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}} ${{nameInCamelCase}}
+{{/isMap}}
+{{/vars}}
+     */
     public function __construct(
 {{#vars}}
         {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{{dataType}}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}},
@@ -71,7 +96,12 @@ enum {{classname}}: string
         return [
 {{#vars}}
 {{#isDateTime}}
+{{#required}}
+            '{{baseName}}' => $this->{{nameInCamelCase}}->format(\DateTime::ATOM),
+{{/required}}
+{{^required}}
             '{{baseName}}' => $this->{{nameInCamelCase}}?->format(\DateTime::ATOM),
+{{/required}}
 {{/isDateTime}}
 {{^isDateTime}}
             '{{baseName}}' => $this->{{nameInCamelCase}},
