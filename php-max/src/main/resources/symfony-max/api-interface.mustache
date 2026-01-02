@@ -1,0 +1,59 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{handlerNamespace}};
+
+{{#imports}}
+use {{import}};
+{{/imports}}
+{{#operations}}
+{{#operation}}
+{{#responses}}
+use {{responseNamespace}}\{{operationIdCamelCase}}{{code}}Response;
+{{/responses}}
+{{/operation}}
+{{/operations}}
+
+/**
+ * {{classname}}Handler
+ *
+ * Handler interface - implement this to provide business logic.
+ * Returns Response DTOs with compile-time type safety via union types.
+ *
+{{#operations}}
+{{#operation}}
+ * Operation: {{operationId}}
+{{/operation}}
+{{/operations}}
+ *
+ * @generated
+ */
+interface {{handlerClassName}}
+{
+{{#operations}}
+{{#operation}}
+    /**
+{{#summary}}
+     * {{summary}}
+{{/summary}}
+{{#notes}}
+     *
+     * {{notes}}
+{{/notes}}
+     */
+    public function {{operationId}}(
+{{#pathParams}}
+        {{dataType}} ${{paramName}},
+{{/pathParams}}
+{{#queryParams}}
+        {{dataType}}|null ${{paramName}} = null,
+{{/queryParams}}
+{{#bodyParam}}
+        \{{modelPackage}}\{{baseType}} ${{paramName}}
+{{/bodyParam}}
+    ): {{#responses}}{{operationIdCamelCase}}{{code}}Response{{^-last}}|{{/-last}}{{/responses}};
+
+{{/operation}}
+{{/operations}}
+}

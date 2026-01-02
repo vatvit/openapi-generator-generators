@@ -1,0 +1,128 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{securityNamespace}};
+
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+
+/**
+ * SecurityValidator
+ *
+ * Validates security requirements for API operations.
+ * Auto-generated from OpenAPI specification.
+ *
+ * Usage in event subscriber or controller:
+ * ```php
+ * $validator = new SecurityValidator($authenticators);
+ * $validator->validateRequest($request, 'createGame');
+ * ```
+ *
+ * @generated
+ */
+final class SecurityValidator
+{
+    /**
+     * Security requirements per operation.
+     * Maps operation ID to required security schemes.
+     *
+     * @var array<string, array<string>>
+     */
+    private const SECURITY_REQUIREMENTS = [
+{{#operations}}
+{{#hasAuthMethods}}
+        '{{operationId}}' => [{{#authMethods}}'{{name}}'{{^-last}}, {{/-last}}{{/authMethods}}],
+{{/hasAuthMethods}}
+{{/operations}}
+    ];
+
+    /**
+     * @param array<string, object> $authenticators Map of scheme name to authenticator instance
+     */
+    public function __construct(
+        private readonly array $authenticators = []
+    ) {}
+
+    /**
+     * Validate security requirements for an operation.
+     *
+     * @param Request $request The incoming HTTP request
+     * @param string $operationId The operation identifier
+     * @throws UnauthorizedHttpException If authentication fails
+     */
+    public function validateRequest(Request $request, string $operationId): void
+    {
+        $requirements = self::SECURITY_REQUIREMENTS[$operationId] ?? [];
+
+        if (empty($requirements)) {
+            // No security requirements for this operation
+            return;
+        }
+
+        // Try each security scheme (OR logic - any valid scheme passes)
+        $lastException = null;
+        foreach ($requirements as $schemeName) {
+            if (!isset($this->authenticators[$schemeName])) {
+                continue; // Authenticator not configured
+            }
+
+            try {
+                $authenticator = $this->authenticators[$schemeName];
+                $credentials = $authenticator->extractCredentials($request);
+
+                if ($credentials === null) {
+                    continue; // No credentials for this scheme
+                }
+
+                // Validate based on scheme type
+                if (method_exists($authenticator, 'validateToken')) {
+                    if ($authenticator->validateToken($credentials)) {
+                        return; // Authentication successful
+                    }
+                } elseif (method_exists($authenticator, 'validateApiKey')) {
+                    if ($authenticator->validateApiKey($credentials)) {
+                        return; // Authentication successful
+                    }
+                } elseif (method_exists($authenticator, 'validateCredentials')) {
+                    // Basic auth - credentials should be parsed as username:password
+                    [$username, $password] = explode(':', base64_decode($credentials), 2) + ['', ''];
+                    if ($authenticator->validateCredentials($username, $password)) {
+                        return; // Authentication successful
+                    }
+                }
+            } catch (\Exception $e) {
+                $lastException = $e;
+            }
+        }
+
+        // No security scheme validated successfully
+        throw new UnauthorizedHttpException(
+            'Bearer',
+            'Authentication required for operation: ' . $operationId,
+            $lastException
+        );
+    }
+
+    /**
+     * Get security requirements for an operation.
+     *
+     * @param string $operationId The operation identifier
+     * @return array<string> Required security schemes
+     */
+    public function getRequirements(string $operationId): array
+    {
+        return self::SECURITY_REQUIREMENTS[$operationId] ?? [];
+    }
+
+    /**
+     * Check if an operation requires authentication.
+     *
+     * @param string $operationId The operation identifier
+     * @return bool True if authentication is required
+     */
+    public function requiresAuthentication(string $operationId): bool
+    {
+        return !empty(self::SECURITY_REQUIREMENTS[$operationId] ?? []);
+    }
+}

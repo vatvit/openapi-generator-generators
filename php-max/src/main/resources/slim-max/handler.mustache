@@ -1,0 +1,116 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{{handlerNamespace}}};
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use {{{serviceNamespace}}}\{{{classname}}}ServiceInterface;
+use {{{validatorNamespace}}}\{{{operationIdCamelCase}}}Validator;
+{{#responses}}
+use {{{responseNamespace}}}\{{{operationIdCamelCase}}}{{{code}}}Response;
+{{/responses}}
+
+/**
+ * {{{operationIdCamelCase}}}Handler
+ *
+ * PSR-15 request handler for {{{operationId}}} operation.
+{{#summary}}
+ * {{{summary}}}
+{{/summary}}
+ *
+ * @generated
+ */
+{{#controllerFinal}}final {{/controllerFinal}}class {{{operationIdCamelCase}}}Handler implements RequestHandlerInterface
+{
+    public function __construct(
+        private readonly {{{classname}}}ServiceInterface $service,
+        private readonly {{{operationIdCamelCase}}}Validator $validator
+    ) {}
+
+    /**
+     * Handle the request
+     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+{{#pathParams}}
+        // Extract path parameters
+{{/pathParams}}
+{{#pathParams}}
+        ${{{paramName}}} = $request->getAttribute('{{{paramName}}}');
+{{#isInteger}}
+        ${{{paramName}}} = (int) ${{{paramName}}};
+{{/isInteger}}
+{{/pathParams}}
+
+{{#hasQueryParams}}
+        // Extract query parameters
+        $queryParams = $request->getQueryParams();
+{{#queryParams}}
+        ${{{paramName}}} = $queryParams['{{{paramName}}}'] ?? {{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}};
+{{#isInteger}}
+        ${{{paramName}}} = ${{{paramName}}} !== null ? (int) ${{{paramName}}} : null;
+{{/isInteger}}
+{{#isArray}}
+        ${{{paramName}}} = is_array(${{{paramName}}}) ? ${{{paramName}}} : (${{{paramName}}} !== null ? explode(',', ${{{paramName}}}) : null);
+{{/isArray}}
+{{/queryParams}}
+{{/hasQueryParams}}
+
+{{#hasBodyParam}}
+        // Parse request body
+        $body = $request->getParsedBody();
+{{/hasBodyParam}}
+
+        // Validate input
+        $validationResult = $this->validator->validate([
+{{#allParams}}
+{{#isPathParam}}
+            '{{{paramName}}}' => ${{{paramName}}},
+{{/isPathParam}}
+{{#isQueryParam}}
+            '{{{paramName}}}' => ${{{paramName}}},
+{{/isQueryParam}}
+{{#isBodyParam}}
+            'body' => $body,
+{{/isBodyParam}}
+{{/allParams}}
+        ]);
+
+        if (!$validationResult->isValid()) {
+            return $this->jsonResponse(
+                ['errors' => $validationResult->getErrors()],
+                422
+            );
+        }
+
+        // Call service with validated parameters
+        $result = $this->service->{{{operationId}}}(
+{{#allParams}}
+{{#isBodyParam}}
+            $body{{^-last}},{{/-last}}
+{{/isBodyParam}}
+{{#isPathParam}}
+            ${{{paramName}}}{{^-last}},{{/-last}}
+{{/isPathParam}}
+{{#isQueryParam}}
+            ${{{paramName}}}{{^-last}},{{/-last}}
+{{/isQueryParam}}
+{{/allParams}}
+        );
+
+        return $this->jsonResponse($result->getData(), $result->getStatusCode());
+    }
+
+    /**
+     * Create a JSON response
+     */
+    private function jsonResponse(mixed $data, int $status = 200): ResponseInterface
+    {
+        $response = new \Slim\Psr7\Response($status);
+        $response->getBody()->write(json_encode($data, JSON_THROW_ON_ERROR));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+}

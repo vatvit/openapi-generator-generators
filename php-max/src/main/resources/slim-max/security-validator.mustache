@@ -1,0 +1,85 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{{securityNamespace}}};
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+/**
+ * AuthMiddleware
+ *
+ * Central authentication middleware that validates security requirements.
+ * Routes are configured to use this middleware when they require authentication.
+ *
+ * Supported security schemes:
+{{#securitySchemes}}
+ * - {{{securityClassName}}}: {{{securityType}}}
+{{/securitySchemes}}
+ *
+ * @generated
+ */
+class AuthMiddleware implements MiddlewareInterface
+{
+    /**
+     * @param array<string, MiddlewareInterface> $securityHandlers
+     */
+    public function __construct(
+        private readonly array $securityHandlers = []
+    ) {}
+
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        // Get route's security requirements from attributes
+        $securityRequirements = $request->getAttribute('security', []);
+
+        if (empty($securityRequirements)) {
+            // No security requirements, proceed
+            return $handler->handle($request);
+        }
+
+        // Try each security scheme (OR logic - any one succeeding is enough)
+        foreach ($securityRequirements as $requirement) {
+            $schemeName = key($requirement);
+
+            if (isset($this->securityHandlers[$schemeName])) {
+                $securityMiddleware = $this->securityHandlers[$schemeName];
+
+                // Create a handler that continues to the next middleware
+                $continueHandler = new class($handler) implements RequestHandlerInterface {
+                    public function __construct(private RequestHandlerInterface $next) {}
+                    public function handle(ServerRequestInterface $request): ResponseInterface
+                    {
+                        return $this->next->handle($request);
+                    }
+                };
+
+                $response = $securityMiddleware->process($request, $continueHandler);
+
+                // If not 401, authentication succeeded
+                if ($response->getStatusCode() !== 401) {
+                    return $response;
+                }
+            }
+        }
+
+        // All security schemes failed
+        return $this->unauthorizedResponse('Authentication required');
+    }
+
+    /**
+     * Create an unauthorized response
+     */
+    protected function unauthorizedResponse(string $message): ResponseInterface
+    {
+        $response = new \Slim\Psr7\Response(401);
+        $response->getBody()->write(json_encode([
+            'error' => 'Unauthorized',
+            'message' => $message
+        ], JSON_THROW_ON_ERROR));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+}

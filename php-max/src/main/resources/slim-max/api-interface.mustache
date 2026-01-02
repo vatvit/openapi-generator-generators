@@ -1,0 +1,49 @@
+{{#operations}}
+<?php
+
+declare(strict_types=1);
+
+namespace {{{handlerNamespace}}};
+
+{{#imports}}
+use {{{import}}};
+{{/imports}}
+{{#operation}}
+{{#responses}}
+use {{{responseNamespace}}}\{{{operationIdCamelCase}}}{{{code}}}Response;
+{{/responses}}
+{{/operation}}
+
+/**
+ * {{{classname}}}ServiceInterface
+ *
+ * Service interface for business logic implementation.
+ * Implement this interface to provide your business logic.
+ *
+{{#operation}}
+ * Operation: {{{operationId}}}
+{{/operation}}
+ *
+ * @generated
+ */
+interface {{{classname}}}ServiceInterface
+{
+{{#operation}}
+    /**
+{{#summary}}
+     * {{{summary}}}
+{{/summary}}
+{{#notes}}
+     *
+     * {{{notes}}}
+{{/notes}}
+     */
+    public function {{{operationId}}}(
+{{#allParams}}
+        {{#isBodyParam}}\{{{modelPackage}}}\{{{dataType}}}{{/isBodyParam}}{{^isBodyParam}}{{{dataType}}}{{/isBodyParam}}{{^required}}|null{{/required}} ${{{paramName}}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}}{{^-last}},{{/-last}}
+{{/allParams}}
+    ): {{#responses}}{{{operationIdCamelCase}}}{{{code}}}Response{{^-last}}|{{/-last}}{{/responses}};
+
+{{/operation}}
+}
+{{/operations}}

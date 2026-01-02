@@ -1,0 +1,23 @@
+# GENERATED API ROUTES
+#
+# Symfony route configuration for API endpoints.
+# Auto-generated from OpenAPI specification.
+#
+# Include this file in your routes.yaml:
+#   api_generated:
+#       resource: 'api_generated.yaml'
+#       prefix: /api
+#
+# @generated
+
+{{#operations}}
+# {{operationIdCamelCase}}{{#summary}} - {{summary}}{{/summary}}
+{{operationId}}:
+    path: {{{path}}}
+    controller: {{controllerNamespace}}\{{operationIdCamelCase}}Controller
+    methods: [{{httpMethod}}]
+{{#hasAuthMethods}}
+    # Security: {{#authMethods}}{{name}}{{^-last}}, {{/-last}}{{/authMethods}}
+{{/hasAuthMethods}}
+
+{{/operations}}

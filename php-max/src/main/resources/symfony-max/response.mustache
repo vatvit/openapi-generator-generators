@@ -1,0 +1,72 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{responseNamespace}};
+
+{{^isMixed}}
+use {{modelPackage}}\{{baseType}};
+{{/isMixed}}
+
+/**
+ * {{className}}
+ *
+ * Response DTO for {{operationId}} - HTTP {{code}} ({{message}})
+ * Auto-generated from OpenAPI specification.
+ *
+ * @generated
+ */
+{{#responseFinal}}final {{/responseFinal}}class {{className}}
+{
+    private int $statusCode = {{code}};
+
+    /** @var array<string, string> */
+    private array $headers = [];
+
+    public function __construct(
+{{#isMixed}}
+        private mixed $data = null
+{{/isMixed}}
+{{^isMixed}}
+        private {{baseType}} $data
+{{/isMixed}}
+    ) {}
+
+{{#isMixed}}
+    public static function create(mixed $data = null): self
+{{/isMixed}}
+{{^isMixed}}
+    public static function create({{baseType}} $data): self
+{{/isMixed}}
+    {
+        return new self($data);
+    }
+
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
+    }
+
+{{#isMixed}}
+    public function getData(): mixed
+{{/isMixed}}
+{{^isMixed}}
+    public function getData(): {{baseType}}
+{{/isMixed}}
+    {
+        return $this->data;
+    }
+
+    /** @return array<string, string> */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    public function withHeader(string $name, string $value): self
+    {
+        $clone = clone $this;
+        $clone->headers[$name] = $value;
+        return $clone;
+    }
+}

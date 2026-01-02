@@ -1,0 +1,81 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{controllerNamespace}};
+
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
+use {{handlerNamespace}}\{{apiClassName}};
+{{#hasBodyParam}}
+use {{dtoNamespace}}\{{operationIdCamelCase}}Request as RequestDto;
+{{/hasBodyParam}}
+
+/**
+ * {{classname}}
+ *
+ * Symfony single-action controller for {{operationId}} operation.
+ * Auto-generated from OpenAPI specification.
+{{#hasSummary}}
+ *
+ * {{summary}}
+{{/hasSummary}}
+{{#hasNotes}}
+ *
+ * {{notes}}
+{{/hasNotes}}
+ *
+ * @generated
+ */
+#[Route('{{{path}}}', name: 'api.{{operationId}}', methods: ['{{httpMethod}}'])]
+{{#controllerFinal}}final {{/controllerFinal}}class {{classname}}
+{
+    public function __construct(
+        private readonly {{apiClassName}} $handler,
+        private readonly SerializerInterface $serializer
+    ) {}
+
+    public function __invoke(
+{{#hasBodyParam}}
+        #[MapRequestPayload] RequestDto $requestDto{{#hasPathParams}},{{/hasPathParams}}{{#hasQueryParams}}{{^hasPathParams}},{{/hasPathParams}}{{/hasQueryParams}}
+{{/hasBodyParam}}
+{{#pathParams}}
+        {{dataType}} ${{paramName}}{{^-last}},{{/-last}}{{#hasQueryParams}}{{#-last}},{{/-last}}{{/hasQueryParams}}
+{{/pathParams}}
+{{#hasQueryParams}}
+        Request $request
+{{/hasQueryParams}}
+    ): JsonResponse
+    {
+{{#hasQueryParams}}
+        // Extract query parameters
+{{#queryParams}}
+        ${{paramName}} = $request->query->get('{{baseName}}');
+{{/queryParams}}
+{{/hasQueryParams}}
+
+        // Delegate to handler
+        $response = $this->handler->{{operationId}}(
+{{#pathParams}}
+            ${{paramName}},
+{{/pathParams}}
+{{#queryParams}}
+            ${{paramName}},
+{{/queryParams}}
+{{#hasBodyParam}}
+            $requestDto
+{{/hasBodyParam}}
+        );
+
+        // Serialize and return response
+        return new JsonResponse(
+            $this->serializer->serialize($response->getData(), 'json'),
+            $response->getStatusCode(),
+            $response->getHeaders(),
+            true
+        );
+    }
+}

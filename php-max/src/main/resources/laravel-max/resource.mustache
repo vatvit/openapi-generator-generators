@@ -1,0 +1,65 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{resourceNamespace}};
+
+use Illuminate\Http\Resources\Json\JsonResource;
+{{#baseType}}
+{{^isMixed}}
+use {{modelPackage}}\{{baseType}};
+{{/isMixed}}
+{{/baseType}}
+
+{{#resourceFinal}}final {{/resourceFinal}}class {{classname}} extends JsonResource
+{
+    protected int $httpCode = {{code}};
+
+{{#headers}}
+    public ?string ${{propertyName}} = null;
+
+{{/headers}}
+    /** @return array<string, mixed> */
+    public function toArray($request): array
+    {
+        /** @var {{baseType}}|null $model */
+        $model = $this->resource;
+
+        // Handle null resource (empty response or error response)
+        if ($model === null) {
+            return [];
+        }
+
+        return [
+{{#vars}}
+            '{{baseName}}' => $model->{{nameInCamelCase}},
+{{/vars}}
+        ];
+    }
+
+    public function withResponse($request, \Illuminate\Http\JsonResponse $response): void
+    {
+        // Set hardcoded HTTP {{code}} status
+        $response->setStatusCode($this->httpCode);
+
+{{#headers}}
+{{#required}}
+        // {{headerName}} header is REQUIRED
+        if ($this->{{propertyName}} === null) {
+            throw new \RuntimeException(
+                '{{headerName}} header is REQUIRED for {{operationId}} (HTTP {{code}}) but was not set'
+            );
+        }
+        $response->header('{{headerName}}', $this->{{propertyName}});
+
+{{/required}}
+{{^required}}
+        // {{headerName}} header is optional
+        if ($this->{{propertyName}} !== null) {
+            $response->header('{{headerName}}', $this->{{propertyName}});
+        }
+
+{{/required}}
+{{/headers}}
+    }
+}

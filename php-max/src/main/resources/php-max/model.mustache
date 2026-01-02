@@ -1,0 +1,89 @@
+<?php
+{{#models}}
+{{#model}}
+
+declare(strict_types=1);
+
+namespace {{modelPackage}};
+
+{{#vendorExtensions.x-is-php-enum}}
+/**
+ * {{classname}}
+ *
+ * {{description}}
+ *
+ * @generated
+ */
+enum {{classname}}: string
+{
+{{#vendorExtensions.x-enum-cases}}
+    case {{name}} = '{{value}}';
+{{/vendorExtensions.x-enum-cases}}
+}
+{{/vendorExtensions.x-is-php-enum}}
+{{^vendorExtensions.x-is-php-enum}}
+/**
+ * {{classname}}
+ *
+ * {{description}}
+ *
+ * @generated
+ */
+class {{classname}}
+{
+{{#vars}}
+    /**
+{{#description}}
+     * {{description}}
+{{/description}}
+{{#isArray}}
+     * @var array<mixed>{{^required}}|null{{/required}}
+{{/isArray}}
+     */
+    public {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}?{{/required}}{{/isNullable}}{{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}} ${{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}};
+
+{{/vars}}
+    /**
+     * Constructor
+     */
+    public function __construct(
+{{#vars}}
+        {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}?{{/required}}{{/isNullable}}{{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}} ${{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}},
+{{/vars}}
+    ) {
+{{#vars}}
+        $this->{{name}} = ${{name}};
+{{/vars}}
+    }
+
+    /**
+     * Create from array
+     *
+     * @param array<string, mixed> $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+{{#vars}}
+            {{name}}: $data['{{baseName}}'] ?? {{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}},
+{{/vars}}
+        );
+    }
+
+    /**
+     * Convert to array
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+{{#vars}}
+            '{{baseName}}' => $this->{{name}},
+{{/vars}}
+        ];
+    }
+}
+{{/vendorExtensions.x-is-php-enum}}
+{{/model}}
+{{/models}}

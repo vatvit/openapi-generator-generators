@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{{responseNamespace}}};
+
+{{#hasModelImport}}
+use {{{modelPackage}}}\{{{modelClass}}};
+{{/hasModelImport}}
+
+/**
+ * {{{className}}}
+ *
+ * Error Response DTO for {{{operationId}}} - HTTP {{{statusCode}}}
+ * Auto-generated from OpenAPI specification.
+ *
+ * @generated
+ */
+{{#responseFinal}}final {{/responseFinal}}class {{{className}}}
+{
+    private int $statusCode = {{{statusCode}}};
+
+    /** @var array<string, string> */
+    private array $headers = [];
+
+    public function __construct(
+{{#hasModelImport}}
+        private {{{modelClass}}} $data
+{{/hasModelImport}}
+{{^hasModelImport}}
+        private mixed $data = null
+{{/hasModelImport}}
+    ) {}
+
+    public static function create({{#hasModelImport}}{{{modelClass}}} $data{{/hasModelImport}}{{^hasModelImport}}mixed $data = null{{/hasModelImport}}): self
+    {
+        return new self($data);
+    }
+
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
+    }
+
+    public function getData(): {{#hasModelImport}}{{{modelClass}}}{{/hasModelImport}}{{^hasModelImport}}mixed{{/hasModelImport}}
+    {
+        return $this->data;
+    }
+
+    /** @return array<string, string> */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    public function withHeader(string $name, string $value): self
+    {
+        $clone = clone $this;
+        $clone->headers[$name] = $value;
+        return $clone;
+    }
+}
