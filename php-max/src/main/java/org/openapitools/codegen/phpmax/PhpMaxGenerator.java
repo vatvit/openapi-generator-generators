@@ -45,6 +45,7 @@ public class PhpMaxGenerator extends AbstractPhpCodegen implements CodegenConfig
     public static final String REQUEST_PACKAGE = "requestPackage";
     public static final String RESPONSE_PACKAGE = "responsePackage";
     public static final String SECURITY_PACKAGE = "securityPackage";
+    public static final String SRC_BASE_PATH = "srcBasePath";
 
     // Configurable namespaces (set via additionalProperties or derived from invokerPackage)
     protected String controllerPackage;
@@ -52,6 +53,7 @@ public class PhpMaxGenerator extends AbstractPhpCodegen implements CodegenConfig
     protected String requestPackage;
     protected String responsePackage;
     protected String securityPackage;
+    protected String srcBasePath = "lib"; // Default to "lib" for backwards compatibility
 
     // Security schemes extracted from OpenAPI spec
     protected List<Map<String, Object>> securitySchemes = new ArrayList<>();
@@ -217,12 +219,18 @@ public class PhpMaxGenerator extends AbstractPhpCodegen implements CodegenConfig
             securityPackage = invokerPackage + "\\Security";
         }
 
+        // Read srcBasePath for operation files (default: "lib")
+        if (additionalProperties.containsKey(SRC_BASE_PATH)) {
+            srcBasePath = (String) additionalProperties.get(SRC_BASE_PATH);
+        }
+
         // Make namespaces available to templates
         additionalProperties.put("controllerPackage", controllerPackage);
         additionalProperties.put("handlerPackage", handlerPackage);
         additionalProperties.put("requestPackage", requestPackage);
         additionalProperties.put("responsePackage", responsePackage);
         additionalProperties.put("securityPackage", securityPackage);
+        additionalProperties.put("srcBasePath", srcBasePath);
 
         // Try to load files.json configuration from template directory
         loadFilesConfig();
@@ -790,7 +798,7 @@ public class PhpMaxGenerator extends AbstractPhpCodegen implements CodegenConfig
         // Build output path
         String filename = toModelName(op.operationId) + config.suffix;
         String folder = config.folder.replace("\\", "/");
-        String outputPath = outputFolder + "/lib/" + folder + "/" + filename;
+        String outputPath = outputFolder + "/" + srcBasePath + "/" + folder + "/" + filename;
 
         // Write the file
         try {
