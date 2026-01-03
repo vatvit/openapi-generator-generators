@@ -14,7 +14,7 @@
 # {{operationIdCamelCase}}{{#summary}} - {{summary}}{{/summary}}
 {{operationId}}:
     path: {{{path}}}
-    controller: {{controllerNamespace}}\{{operationIdCamelCase}}Controller
+    controller: {{controllerPackage}}\{{operationIdCamelCase}}Controller
     methods: [{{httpMethod}}]
 {{#hasAuthMethods}}
     # Security: {{#authMethods}}{{name}}{{^-last}}, {{/-last}}{{/authMethods}}

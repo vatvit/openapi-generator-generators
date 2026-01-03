@@ -32,9 +32,9 @@ return function (App $app): void {
      * Security: {{#authMethods}}{{{name}}}{{^-last}}, {{/-last}}{{/authMethods}}
 {{/hasAuthMethods}}
      */
-    $app->{{{httpMethod}}}('{{{path}}}', \{{{handlerNamespace}}}\{{{operationIdCamelCase}}}Handler::class)
+    $app->{{{httpMethod}}}('{{{path}}}', \{{{handlerPackage}}}\{{{operationIdPascalCase}}}Handler::class)
         ->setName('{{{operationId}}}'){{#hasAuthMethods}}
-        ->add(\{{{securityNamespace}}}\AuthMiddleware::class){{/hasAuthMethods}};
+        ->add(\{{{securityPackage}}}\AuthMiddleware::class){{/hasAuthMethods}};
 
 {{/operations}}
 };

@@ -3,14 +3,14 @@
 
 declare(strict_types=1);
 
-namespace {{{handlerNamespace}}};
+namespace {{{apiPackage}}};
 
 {{#imports}}
 use {{{import}}};
 {{/imports}}
 {{#operation}}
 {{#responses}}
-use {{{responseNamespace}}}\{{{operationIdCamelCase}}}{{{code}}}Response;
+use {{{responsePackage}}}\{{{operationIdPascalCase}}}{{{code}}}Response;
 {{/responses}}
 {{/operation}}
 
@@ -40,9 +40,9 @@ interface {{{classname}}}ServiceInterface
      */
     public function {{{operationId}}}(
 {{#allParams}}
-        {{#isBodyParam}}\{{{modelPackage}}}\{{{dataType}}}{{/isBodyParam}}{{^isBodyParam}}{{{dataType}}}{{/isBodyParam}}{{^required}}|null{{/required}} ${{{paramName}}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}}{{^-last}},{{/-last}}
+        {{#isBodyParam}}\{{{modelPackage}}}\{{{dataType}}}{{/isBodyParam}}{{^isBodyParam}}{{#isArray}}array{{/isArray}}{{^isArray}}{{{dataType}}}{{/isArray}}{{/isBodyParam}}{{^required}}|null{{/required}} ${{{paramName}}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}}{{^-last}},{{/-last}}
 {{/allParams}}
-    ): {{#responses}}{{{operationIdCamelCase}}}{{{code}}}Response{{^-last}}|{{/-last}}{{/responses}};
+    ): {{#responses}}{{{operationIdPascalCase}}}{{{code}}}Response{{^-last}}|{{/-last}}{{/responses}};
 
 {{/operation}}
 }

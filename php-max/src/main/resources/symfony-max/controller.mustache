@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace {{controllerNamespace}};
+namespace {{controllerPackage}};
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
-use {{handlerNamespace}}\{{apiClassName}};
+use {{handlerPackage}}\{{operationIdPascalCase}}ApiHandlerInterface;
 {{#hasBodyParam}}
-use {{dtoNamespace}}\{{operationIdCamelCase}}Request as RequestDto;
+use {{requestPackage}}\{{operationIdPascalCase}}Request as RequestDto;
 {{/hasBodyParam}}
 
 /**
@@ -34,7 +34,7 @@ use {{dtoNamespace}}\{{operationIdCamelCase}}Request as RequestDto;
 {{#controllerFinal}}final {{/controllerFinal}}class {{classname}}
 {
     public function __construct(
-        private readonly {{apiClassName}} $handler,
+        private readonly {{operationIdPascalCase}}ApiHandlerInterface $handler,
         private readonly SerializerInterface $serializer
     ) {}
 

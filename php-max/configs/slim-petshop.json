@@ -1,0 +1,11 @@
+{
+  "invokerPackage": "PetshopApi",
+  "apiPackage": "Api",
+  "modelPackage": "Model",
+  "additionalProperties": {
+    "handlerPackage": "Handler",
+    "responsePackage": "Response",
+    "requestPackage": "Request",
+    "securityPackage": "Security"
+  }
+}

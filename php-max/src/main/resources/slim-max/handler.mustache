@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace {{{handlerNamespace}}};
+namespace {{{handlerPackage}}};
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use {{{serviceNamespace}}}\{{{classname}}}ServiceInterface;
-use {{{validatorNamespace}}}\{{{operationIdCamelCase}}}Validator;
+use {{{apiPackage}}}\{{{classname}}}ServiceInterface;
+use {{{handlerPackage}}}\{{{operationIdPascalCase}}}Validator;
 {{#responses}}
-use {{{responseNamespace}}}\{{{operationIdCamelCase}}}{{{code}}}Response;
+use {{{responsePackage}}}\{{{operationIdPascalCase}}}{{{code}}}Response;
 {{/responses}}
 
 /**
- * {{{operationIdCamelCase}}}Handler
+ * {{{operationIdPascalCase}}}Handler
  *
  * PSR-15 request handler for {{{operationId}}} operation.
 {{#summary}}
@@ -23,11 +23,11 @@ use {{{responseNamespace}}}\{{{operationIdCamelCase}}}{{{code}}}Response;
  *
  * @generated
  */
-{{#controllerFinal}}final {{/controllerFinal}}class {{{operationIdCamelCase}}}Handler implements RequestHandlerInterface
+{{#controllerFinal}}final {{/controllerFinal}}class {{{operationIdPascalCase}}}Handler implements RequestHandlerInterface
 {
     public function __construct(
         private readonly {{{classname}}}ServiceInterface $service,
-        private readonly {{{operationIdCamelCase}}}Validator $validator
+        private readonly {{{operationIdPascalCase}}}Validator $validator
     ) {}
 
     /**

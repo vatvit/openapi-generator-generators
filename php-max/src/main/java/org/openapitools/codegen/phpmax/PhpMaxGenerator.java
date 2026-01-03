@@ -413,6 +413,16 @@ public class PhpMaxGenerator extends AbstractPhpCodegen implements CodegenConfig
                 null
             ));
         }
+
+        // Handler interface template - always generate if present
+        if (templateExists("handler.mustache")) {
+            operationTemplateFiles.add(new OperationTemplateConfig(
+                "handler.mustache",
+                "Handler",
+                "ApiHandlerInterface.php",
+                null
+            ));
+        }
     }
 
     /**

@@ -4,35 +4,28 @@ declare(strict_types=1);
 
 namespace {{handlerPackage}};
 
-{{#imports}}
-use {{import}};
-{{/imports}}
-{{#operations}}
-{{#operation}}
 {{#responses}}
 use {{responsePackage}}\{{operationIdPascalCase}}{{code}}Response;
 {{/responses}}
-{{/operation}}
-{{/operations}}
 
 /**
- * {{classname}}Handler
+ * {{operationIdPascalCase}}ApiHandlerInterface
  *
- * Handler interface - implement this to provide business logic.
- * Returns Response DTOs with compile-time type safety via union types.
+ * Handler interface for {{operationId}} operation.
+ * Implement this to provide business logic.
  *
-{{#operations}}
-{{#operation}}
- * Operation: {{operationId}}
-{{/operation}}
-{{/operations}}
+{{#summary}}
+ * {{summary}}
+{{/summary}}
+{{#notes}}
+ *
+ * {{notes}}
+{{/notes}}
  *
  * @generated
  */
-interface {{classname}}
+interface {{operationIdPascalCase}}ApiHandlerInterface
 {
-{{#operations}}
-{{#operation}}
     /**
 {{#summary}}
      * {{summary}}
@@ -50,10 +43,7 @@ interface {{classname}}
         {{dataType}}|null ${{paramName}} = null,
 {{/queryParams}}
 {{#bodyParam}}
-        \{{modelPackage}}\{{baseType}} ${{paramName}}
+        \{{requestPackage}}\{{operationIdPascalCase}}Request ${{paramName}}
 {{/bodyParam}}
     ): {{#responses}}{{operationIdPascalCase}}{{code}}Response{{^-last}}|{{/-last}}{{/responses}};
-
-{{/operation}}
-{{/operations}}
 }

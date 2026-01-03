@@ -1,0 +1,41 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{apiPackage}};
+
+{{#imports}}
+use {{import}};
+{{/imports}}
+
+/**
+ * {{classname}}Interface
+ *
+ * API Service interface for {{classname}} operations.
+ * Implement this interface in your application to handle API requests.
+ *
+ * @generated
+ */
+interface {{classname}}Interface
+{
+{{#operations}}
+{{#operation}}
+    /**
+     * {{summary}}
+     *
+     * {{notes}}
+     *
+{{#allParams}}
+     * @param {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}} ${{paramName}} {{description}}
+{{/allParams}}
+     * @return mixed
+     */
+    public function {{operationId}}(
+{{#allParams}}
+        {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}}{{^required}}|null{{/required}} ${{paramName}}{{^required}} = null{{/required}},
+{{/allParams}}
+    );
+
+{{/operation}}
+{{/operations}}
+}

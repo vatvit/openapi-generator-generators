@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace {{{validatorNamespace}}};
+namespace {{{handlerPackage}}};
 
 use Respect\Validation\Validator as v;
 use Respect\Validation\Exceptions\NestedValidationException;
 
 /**
- * {{{operationIdCamelCase}}}Validator
+ * {{{operationIdPascalCase}}}Validator
  *
  * Validates input for {{{operationId}}} operation using Respect/Validation.
 {{#summary}}
@@ -17,7 +17,7 @@ use Respect\Validation\Exceptions\NestedValidationException;
  *
  * @generated
  */
-{{#validatorFinal}}final {{/validatorFinal}}class {{{operationIdCamelCase}}}Validator
+{{#validatorFinal}}final {{/validatorFinal}}class {{{operationIdPascalCase}}}Validator
 {
     /**
      * Validate the input data
