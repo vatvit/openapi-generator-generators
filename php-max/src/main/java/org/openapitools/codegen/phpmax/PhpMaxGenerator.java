@@ -180,6 +180,10 @@ public class PhpMaxGenerator extends AbstractPhpCodegen implements CodegenConfig
     public void processOpts() {
         super.processOpts();
 
+        // Enable post-process file hook to delete empty files
+        // This allows empty templates to produce no output files
+        this.enablePostProcessFile = true;
+
         // Disable documentation, test, and supporting file generation
         // Templates can add these via supportingFiles if needed
         modelDocTemplateFiles.clear();
@@ -871,15 +875,45 @@ public class PhpMaxGenerator extends AbstractPhpCodegen implements CodegenConfig
     }
 
     /**
-     * Write content to a file, creating directories as needed
+     * Write content to a file, creating directories as needed.
+     * Skips file creation if content is empty or whitespace-only.
      */
     protected void writeToFile(String path, String content) {
+        // Skip if content is empty or whitespace-only
+        if (content == null || content.trim().isEmpty()) {
+            LOGGER.info("Skipping empty file: " + path);
+            return;
+        }
+
         try {
             File file = new File(path);
             file.getParentFile().mkdirs();
             java.nio.file.Files.write(file.toPath(), content.getBytes(java.nio.charset.StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.error("Error writing file: " + path, e);
+        }
+    }
+
+    /**
+     * Post-process generated files - delete empty files.
+     * This handles model/api/supporting files written by the framework.
+     */
+    @Override
+    public void postProcessFile(File file, String fileType) {
+        super.postProcessFile(file, fileType);
+
+        // Delete empty files (files with only whitespace)
+        if (file != null && file.exists()) {
+            try {
+                String content = new String(java.nio.file.Files.readAllBytes(file.toPath()), java.nio.charset.StandardCharsets.UTF_8);
+                if (content.trim().isEmpty()) {
+                    if (file.delete()) {
+                        LOGGER.info("Deleted empty file: " + file.getPath());
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.warn("Could not check file content: " + file.getPath());
+            }
         }
     }
 
