@@ -47,7 +47,7 @@ enum {{classname}}: string
     /** @var array<string, mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}} */
 {{/isMap}}
 {{/description}}
-    public {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{{dataType}}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}};
+    public {{#isAnyType}}mixed{{/isAnyType}}{{#isFreeFormObject}}{{^isAnyType}}mixed{{/isAnyType}}{{/isFreeFormObject}}{{^isAnyType}}{{^isFreeFormObject}}{{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{#isArray}}array{{/isArray}}{{#isMap}}array{{/isMap}}{{^isArray}}{{^isMap}}{{{dataType}}}{{/isMap}}{{/isArray}}{{/isFreeFormObject}}{{/isAnyType}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}};
 {{/vars}}
 
     /**
@@ -62,7 +62,7 @@ enum {{classname}}: string
      */
     public function __construct(
 {{#vars}}
-        {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{{dataType}}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}},
+        {{#isAnyType}}mixed{{/isAnyType}}{{#isFreeFormObject}}{{^isAnyType}}mixed{{/isAnyType}}{{/isFreeFormObject}}{{^isAnyType}}{{^isFreeFormObject}}{{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{#isArray}}array{{/isArray}}{{#isMap}}array{{/isMap}}{{^isArray}}{{^isMap}}{{{dataType}}}{{/isMap}}{{/isArray}}{{/isFreeFormObject}}{{/isAnyType}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}},
 {{/vars}}
     ) {
 {{#vars}}

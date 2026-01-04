@@ -32,7 +32,7 @@ interface {{classname}}Interface
      */
     public function {{operationId}}(
 {{#allParams}}
-        {{dataType}} ${{paramName}},
+        {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}}{{^required}}|null{{/required}} ${{paramName}}{{^required}} = null{{/required}},
 {{/allParams}}
     );
 

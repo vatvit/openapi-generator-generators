@@ -46,7 +46,7 @@ download-cli: ## Download OpenAPI Generator CLI JAR
 		echo "CLI JAR already exists: target/$(CLI_JAR)"; \
 	fi
 
-generate: ## Generate code (requires: SPEC, OUTPUT_DIR, optional: CONFIG, GENERATOR)
+generate: ## Generate code (requires: SPEC, OUTPUT_DIR, optional: CONFIG, GENERATOR, TEMPLATES, INVOKER)
 ifndef SPEC
 	$(error SPEC is required. Example: SPEC=../../openapi-generator-specs/tictactoe/tictactoe.json)
 endif
@@ -58,7 +58,8 @@ endif
 		$(MAKE) build; \
 	fi
 	@$(MAKE) download-cli
-	@echo "Generating code with php-max generator ($(or $(GENERATOR),laravel-max))..."
+	@echo "Generating code with php-max generator..."
+	@echo "  Templates: $(or $(TEMPLATES),embedded php-max)"
 	@mkdir -p $(OUTPUT_DIR)
 	@docker run --rm \
 		-v $$(pwd):/generator \
@@ -67,9 +68,10 @@ endif
 		eclipse-temurin:17-jdk \
 		java -cp /generator/target/$(CLI_JAR):/generator/target/$(JAR_NAME) \
 			org.openapitools.codegen.OpenAPIGenerator generate \
-			-g $(or $(GENERATOR),laravel-max) \
+			-g php-max \
 			-i /local/$(SPEC) \
 			-o /local/$(OUTPUT_DIR) \
-			--additional-properties=invokerPackage=TictactoeApi \
+			--additional-properties=invokerPackage=$(or $(INVOKER),PhpMaxApi) \
+			$(if $(TEMPLATES),-t /generator/src/main/resources/$(TEMPLATES),) \
 			$(if $(CONFIG),-c /local/$(CONFIG),)
 	@echo "Generated: $(OUTPUT_DIR)"

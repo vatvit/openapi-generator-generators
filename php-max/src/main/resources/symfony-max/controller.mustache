@@ -31,7 +31,7 @@ use {{requestPackage}}\{{operationIdPascalCase}}Request as RequestDto;
  * @generated
  */
 #[Route('{{{path}}}', name: 'api.{{operationId}}', methods: ['{{httpMethod}}'])]
-{{#controllerFinal}}final {{/controllerFinal}}class {{classname}}
+final class {{classname}}
 {
     public function __construct(
         private readonly {{operationIdPascalCase}}ApiHandlerInterface $handler,
@@ -43,7 +43,7 @@ use {{requestPackage}}\{{operationIdPascalCase}}Request as RequestDto;
         #[MapRequestPayload] RequestDto $requestDto{{#hasPathParams}},{{/hasPathParams}}{{#hasQueryParams}}{{^hasPathParams}},{{/hasPathParams}}{{/hasQueryParams}}
 {{/hasBodyParam}}
 {{#pathParams}}
-        {{dataType}} ${{paramName}}{{^-last}},{{/-last}}{{#hasQueryParams}}{{#-last}},{{/-last}}{{/hasQueryParams}}
+        {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}} ${{paramName}}{{^-last}},{{/-last}}{{#hasQueryParams}}{{#-last}},{{/-last}}{{/hasQueryParams}}
 {{/pathParams}}
 {{#hasQueryParams}}
         Request $request

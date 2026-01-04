@@ -584,34 +584,26 @@ public class PhpMaxGenerator extends AbstractPhpCodegen implements CodegenConfig
     }
 
     /**
-     * Convert enum value to valid PHP enum case name
+     * Convert enum value to valid PHP enum case name (SCREAMING_SNAKE_CASE)
      */
     protected String toEnumCaseName(String value) {
         if (value == null || value.isEmpty()) {
-            return "Empty";
+            return "EMPTY";
         }
 
         // Handle numeric values
         if (value.matches("^-?\\d+.*")) {
-            return "Value" + value.replaceAll("[^a-zA-Z0-9]", "_");
+            return "VALUE_" + value.replaceAll("[^a-zA-Z0-9]", "_").toUpperCase();
         }
 
-        // Convert to PascalCase, replacing non-alphanumeric chars
-        String result = value.replaceAll("[^a-zA-Z0-9]+", "_");
-        String[] parts = result.split("_");
-        StringBuilder sb = new StringBuilder();
-        for (String part : parts) {
-            if (!part.isEmpty()) {
-                sb.append(Character.toUpperCase(part.charAt(0)));
-                if (part.length() > 1) {
-                    sb.append(part.substring(1).toLowerCase());
-                }
-            }
-        }
+        // Convert to SCREAMING_SNAKE_CASE, replacing non-alphanumeric chars
+        String result = value.replaceAll("[^a-zA-Z0-9]+", "_").toUpperCase();
 
-        String caseName = sb.toString();
+        // Clean up leading/trailing underscores and multiple consecutive underscores
+        String caseName = result.replaceAll("^_+|_+$", "").replaceAll("_+", "_");
+
         if (caseName.isEmpty()) {
-            caseName = "Value";
+            caseName = "VALUE";
         }
 
         return caseName;

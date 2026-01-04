@@ -44,10 +44,10 @@ interface {{classname}}
      */
     public function {{operationId}}(
 {{#pathParams}}
-        {{dataType}} ${{paramName}},
+        {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}} ${{paramName}},
 {{/pathParams}}
 {{#queryParams}}
-        {{dataType}}|null ${{paramName}} = null,
+        {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}}|null ${{paramName}} = null,
 {{/queryParams}}
 {{#bodyParam}}
         \{{modelPackage}}\{{baseType}} ${{paramName}}
