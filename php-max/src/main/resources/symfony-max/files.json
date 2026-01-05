@@ -1,0 +1,36 @@
+{
+  "templates": {
+    "model": {
+      "template": "model.mustache",
+      "folder": "Model",
+      "suffix": ".php",
+      "enabled": true
+    },
+    "api": {
+      "template": "api-interface.mustache",
+      "folder": "Api",
+      "suffix": "Interface.php",
+      "enabled": true
+    },
+    "controller": {
+      "template": "controller.mustache",
+      "folder": "Controller",
+      "suffix": "Controller.php",
+      "enabled": true
+    },
+    "handler": {
+      "template": "handler.mustache",
+      "folder": "Handler",
+      "suffix": "ApiHandlerInterface.php",
+      "enabled": true
+    },
+    "request": {
+      "template": "query-params.mustache",
+      "folder": "Request",
+      "suffix": "QueryParams.php",
+      "enabled": true,
+      "condition": "hasQueryParams"
+    }
+  },
+  "supporting": []
+}

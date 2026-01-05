@@ -2,24 +2,17 @@
 
 declare(strict_types=1);
 
-namespace {{handlerPackage}};
+namespace {{apiPackage}};
 
 {{#imports}}
 use {{import}};
 {{/imports}}
-{{#operations}}
-{{#operation}}
-{{#responses}}
-use {{responsePackage}}\{{operationIdPascalCase}}{{code}}Response;
-{{/responses}}
-{{/operation}}
-{{/operations}}
 
 /**
- * {{classname}}Handler
+ * {{classname}}Interface
  *
- * Handler interface - implement this to provide business logic.
- * Returns Response DTOs with compile-time type safety via union types.
+ * API Service interface for {{classname}} operations.
+ * Implement this interface in your application to handle API requests.
  *
 {{#operations}}
 {{#operation}}
@@ -29,7 +22,7 @@ use {{responsePackage}}\{{operationIdPascalCase}}{{code}}Response;
  *
  * @generated
  */
-interface {{classname}}
+interface {{classname}}Interface
 {
 {{#operations}}
 {{#operation}}
@@ -41,6 +34,17 @@ interface {{classname}}
      *
      * {{notes}}
 {{/notes}}
+     *
+{{#pathParams}}
+     * @param {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}} ${{paramName}} {{description}}
+{{/pathParams}}
+{{#queryParams}}
+     * @param {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}}|null ${{paramName}} {{description}}
+{{/queryParams}}
+{{#bodyParam}}
+     * @param \{{modelPackage}}\{{baseType}} ${{paramName}} {{description}}
+{{/bodyParam}}
+     * @return mixed
      */
     public function {{operationId}}(
 {{#pathParams}}
@@ -52,7 +56,7 @@ interface {{classname}}
 {{#bodyParam}}
         \{{modelPackage}}\{{baseType}} ${{paramName}}
 {{/bodyParam}}
-    ): {{#responses}}{{operationIdPascalCase}}{{code}}Response{{^-last}}|{{/-last}}{{/responses}};
+    );
 
 {{/operation}}
 {{/operations}}

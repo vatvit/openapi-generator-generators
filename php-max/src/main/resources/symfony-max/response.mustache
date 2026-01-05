@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace {{responsePackage}};
 
+{{#baseType}}
 {{^isMixed}}
 use {{modelPackage}}\{{baseType}};
 {{/isMixed}}
+{{/baseType}}
 
 /**
  * {{className}}
@@ -24,20 +26,30 @@ use {{modelPackage}}\{{baseType}};
     private array $headers = [];
 
     public function __construct(
-{{#isMixed}}
-        private mixed $data = null
-{{/isMixed}}
+{{#baseType}}
 {{^isMixed}}
         private {{baseType}} $data
 {{/isMixed}}
+{{#isMixed}}
+        private mixed $data = null
+{{/isMixed}}
+{{/baseType}}
+{{^baseType}}
+        private mixed $data = null
+{{/baseType}}
     ) {}
 
-{{#isMixed}}
-    public static function create(mixed $data = null): self
-{{/isMixed}}
+{{#baseType}}
 {{^isMixed}}
     public static function create({{baseType}} $data): self
 {{/isMixed}}
+{{#isMixed}}
+    public static function create(mixed $data = null): self
+{{/isMixed}}
+{{/baseType}}
+{{^baseType}}
+    public static function create(mixed $data = null): self
+{{/baseType}}
     {
         return new self($data);
     }
@@ -47,12 +59,17 @@ use {{modelPackage}}\{{baseType}};
         return $this->statusCode;
     }
 
-{{#isMixed}}
-    public function getData(): mixed
-{{/isMixed}}
+{{#baseType}}
 {{^isMixed}}
     public function getData(): {{baseType}}
 {{/isMixed}}
+{{#isMixed}}
+    public function getData(): mixed
+{{/isMixed}}
+{{/baseType}}
+{{^baseType}}
+    public function getData(): mixed
+{{/baseType}}
     {
         return $this->data;
     }

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace {{handlerPackage}};
 
-{{#responses}}
-use {{responsePackage}}\{{operationIdPascalCase}}{{code}}Response;
-{{/responses}}
+{{#imports}}
+use {{import}};
+{{/imports}}
 
 /**
  * {{operationIdPascalCase}}ApiHandlerInterface
@@ -34,6 +34,17 @@ interface {{operationIdPascalCase}}ApiHandlerInterface
      *
      * {{notes}}
 {{/notes}}
+     *
+{{#pathParams}}
+     * @param {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}} ${{paramName}} {{description}}
+{{/pathParams}}
+{{#queryParams}}
+     * @param {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}}|null ${{paramName}} {{description}}
+{{/queryParams}}
+{{#bodyParam}}
+     * @param \{{modelPackage}}\{{baseType}} ${{paramName}} {{description}}
+{{/bodyParam}}
+     * @return mixed
      */
     public function {{operationId}}(
 {{#pathParams}}
@@ -43,7 +54,7 @@ interface {{operationIdPascalCase}}ApiHandlerInterface
         {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}}|null ${{paramName}} = null,
 {{/queryParams}}
 {{#bodyParam}}
-        \{{requestPackage}}\{{operationIdPascalCase}}Request ${{paramName}}
+        \{{modelPackage}}\{{baseType}} ${{paramName}}
 {{/bodyParam}}
-    ): {{#responses}}{{operationIdPascalCase}}{{code}}Response{{^-last}}|{{/-last}}{{/responses}};
+    );
 }

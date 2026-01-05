@@ -327,6 +327,7 @@ public class PhpMaxGenerator extends AbstractPhpCodegen implements CodegenConfig
         // Apply operation template configs
         applyOperationConfig("operation", "controller");
         applyOperationConfig("controller", "controller");
+        applyOperationConfig("handler", "Handler");
         applyOperationConfig("request", "request");
         applyOperationConfig("formrequest", "request");
         applyOperationConfig("response", "response");
@@ -553,9 +554,36 @@ public class PhpMaxGenerator extends AbstractPhpCodegen implements CodegenConfig
             for (CodegenProperty prop : model.vars) {
                 enrichPropertyConstraints(prop);
             }
+
+            // Sort properties: required params first, then optional
+            // This prevents PHP deprecation warnings about optional params before required
+            sortPropertiesByRequired(model);
         }
 
         return result;
+    }
+
+    /**
+     * Sort model properties so required parameters come before optional ones.
+     * PHP 8.0+ deprecates optional parameters declared before required parameters.
+     */
+    protected void sortPropertiesByRequired(CodegenModel model) {
+        if (model.vars == null || model.vars.isEmpty()) {
+            return;
+        }
+
+        // A property is "optional" in PHP if it has a default value (including null for nullable)
+        // Required: prop.required == true AND no defaultValue AND not nullable
+        // Optional: prop.required == false OR has defaultValue OR nullable
+        model.vars.sort((a, b) -> {
+            boolean aOptional = !a.required || a.defaultValue != null;
+            boolean bOptional = !b.required || b.defaultValue != null;
+
+            if (aOptional == bOptional) {
+                return 0; // Keep original order for same category
+            }
+            return aOptional ? 1 : -1; // Required first, optional last
+        });
     }
 
     /**
