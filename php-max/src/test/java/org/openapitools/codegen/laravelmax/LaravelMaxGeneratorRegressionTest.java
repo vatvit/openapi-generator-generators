@@ -43,7 +43,7 @@ public class LaravelMaxGeneratorRegressionTest {
         Files.createDirectories(OUTPUT_DIR);
 
         final CodegenConfigurator configurator = new CodegenConfigurator()
-                .setGeneratorName("laravel-max")
+                .setGeneratorName("php-max")
                 .setInputSpec(PETSHOP_SPEC)
                 .setOutputDir(OUTPUT_DIR.toString())
                 .addAdditionalProperty("apiPackage", apiPackage);

@@ -1,41 +1,28 @@
-<?php
 
-declare(strict_types=1);
+# This is a sample api mustache template.  It is representing a fictitious
+# language and won't be usable or compile to anything without lots of changes.
+# Use it as an example.  You can access the variables in the generator object
+# like such:
 
-namespace {{apiPackage}};
+# use the package from the `apiPackage` variable
+package: {{package}}
 
-{{#imports}}
-use {{import}};
-{{/imports}}
-
-/**
- * {{classname}}Interface
- *
- * API Service interface for {{classname}} operations.
- * Implement this interface in your application to handle API requests.
- *
- * @generated
- */
-interface {{classname}}Interface
-{
+# operations block
 {{#operations}}
+classname: {{classname}}
+
+# loop over each operation in the API:
 {{#operation}}
-    /**
-     * {{summary}}
-     *
-     * {{notes}}
-     *
+
+# each operation has an `operationId`:
+operationId: {{operationId}}
+
+# and parameters:
 {{#allParams}}
-     * @param {{dataType}} ${{paramName}} {{description}}
+{{paramName}}: {{dataType}}
 {{/allParams}}
-     * @return mixed
-     */
-    public function {{operationId}}(
-{{#allParams}}
-        {{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}}{{^required}}|null{{/required}} ${{paramName}}{{^required}} = null{{/required}},
-{{/allParams}}
-    );
 
 {{/operation}}
+
+# end of operations block
 {{/operations}}
-}

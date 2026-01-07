@@ -1,19 +1,17 @@
-<?php
 {{#models}}
 {{#model}}
+<?php
 
 declare(strict_types=1);
 
-namespace {{modelPackage}};
+namespace {{{modelPackage}}};
 
 {{#vendorExtensions.x-is-php-enum}}
+{{#description}}
 /**
- * {{classname}}
- *
  * {{description}}
- *
- * @generated
  */
+{{/description}}
 enum {{classname}}: string
 {
 {{#vendorExtensions.x-enum-cases}}
@@ -22,64 +20,92 @@ enum {{classname}}: string
 }
 {{/vendorExtensions.x-is-php-enum}}
 {{^vendorExtensions.x-is-php-enum}}
+{{#description}}
 /**
- * {{classname}}
- *
  * {{description}}
- *
- * @generated
  */
-class {{classname}}
+{{/description}}
+{{#modelFinal}}final {{/modelFinal}}class {{classname}}
 {
 {{#vars}}
-    /**
 {{#description}}
-     * {{description}}
-{{/description}}
-{{#isArray}}
-     * @var array<mixed>{{^required}}|null{{/required}}
-{{/isArray}}
-     */
-    public {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}?{{/required}}{{/isNullable}}{{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}} ${{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}};
-
-{{/vars}}
     /**
-     * Constructor
+     * {{description}}
+{{#isArray}}
+     * @var array<mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}}
+{{/isArray}}
+{{#isMap}}
+     * @var array<string, mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}}
+{{/isMap}}
+     */
+{{/description}}
+{{^description}}
+{{#isArray}}
+    /** @var array<mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}} */
+{{/isArray}}
+{{#isMap}}
+    /** @var array<string, mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}} */
+{{/isMap}}
+{{/description}}
+    public {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{{dataType}}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}};
+{{/vars}}
+
+    /**
+{{#vars}}
+{{#isArray}}
+     * @param array<mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}} ${{nameInCamelCase}}
+{{/isArray}}
+{{#isMap}}
+     * @param array<string, mixed>{{#isNullable}}|null{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}|null{{/defaultValue}}{{/required}}{{/isNullable}} ${{nameInCamelCase}}
+{{/isMap}}
+{{/vars}}
      */
     public function __construct(
 {{#vars}}
-        {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}?{{/required}}{{/isNullable}}{{#isArray}}array{{/isArray}}{{^isArray}}{{dataType}}{{/isArray}} ${{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}},
+        {{#isNullable}}?{{/isNullable}}{{^isNullable}}{{^required}}{{^defaultValue}}?{{/defaultValue}}{{/required}}{{/isNullable}}{{{dataType}}} ${{nameInCamelCase}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}{{^required}}{{^defaultValue}} = null{{/defaultValue}}{{/required}},
 {{/vars}}
     ) {
 {{#vars}}
-        $this->{{name}} = ${{name}};
+        $this->{{nameInCamelCase}} = ${{nameInCamelCase}};
 {{/vars}}
     }
 
-    /**
-     * Create from array
-     *
-     * @param array<string, mixed> $data
-     */
+    /** @param array<string, mixed> $data */
     public static function fromArray(array $data): self
     {
         return new self(
 {{#vars}}
-            {{name}}: $data['{{baseName}}'] ?? {{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}},
+{{#isDateTime}}
+            {{nameInCamelCase}}: isset($data['{{baseName}}']) ? new \DateTime($data['{{baseName}}']) : {{^required}}null{{/required}}{{#required}}throw new \InvalidArgumentException('{{baseName}} is required'){{/required}},
+{{/isDateTime}}
+{{^isDateTime}}
+{{#isEnumRef}}
+            {{nameInCamelCase}}: {{#required}}{{{dataType}}}::from($data['{{baseName}}']){{/required}}{{^required}}isset($data['{{baseName}}']) ? {{{dataType}}}::from($data['{{baseName}}']) : null{{/required}},
+{{/isEnumRef}}
+{{^isEnumRef}}
+            {{nameInCamelCase}}: $data['{{baseName}}']{{^required}}{{#defaultValue}} ?? {{{defaultValue}}}{{/defaultValue}}{{^defaultValue}} ?? null{{/defaultValue}}{{/required}},
+{{/isEnumRef}}
+{{/isDateTime}}
 {{/vars}}
         );
     }
 
-    /**
-     * Convert to array
-     *
-     * @return array<string, mixed>
-     */
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return [
 {{#vars}}
-            '{{baseName}}' => $this->{{name}},
+{{#isDateTime}}
+{{#required}}
+            '{{baseName}}' => $this->{{nameInCamelCase}}->format(\DateTime::ATOM),
+{{/required}}
+{{^required}}
+            '{{baseName}}' => $this->{{nameInCamelCase}}?->format(\DateTime::ATOM),
+{{/required}}
+{{/isDateTime}}
+{{^isDateTime}}
+            '{{baseName}}' => $this->{{nameInCamelCase}},
+{{/isDateTime}}
 {{/vars}}
         ];
     }

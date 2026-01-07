@@ -1,85 +1,170 @@
-# OpenAPI Generator for the laravel-max library
+# php-max OpenAPI Generator
+
+A framework-agnostic PHP code generator for OpenAPI specifications.
 
 ## Overview
-This is a boiler-plate project to generate your own project derived from an OpenAPI specification.
-Its goal is to get you started with the basic plumbing so you can put in your own logic.
-It won't work without your changes applied.
 
-## What's OpenAPI
-The goal of OpenAPI is to define a standard, language-agnostic interface to REST APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection.
-When properly described with OpenAPI, a consumer can understand and interact with the remote service with a minimal amount of implementation logic.
-Similar to what interfaces have done for lower-level programming, OpenAPI removes the guesswork in calling the service.
+The `php-max` generator produces high-quality PHP code for **any PHP framework**. Framework-specific differences are handled entirely in **templates**, not in Java code.
 
-Check out [OpenAPI-Spec](https://github.com/OAI/OpenAPI-Specification) for additional information about the OpenAPI project, including additional libraries with support for other languages and more.
+**Key Features:**
+- PHP 8.1+ with strict types
+- Per-operation file generation
+- Property constraint flags for validation
+- Security scheme extraction
+- Framework-agnostic core
 
-## How do I use this?
-At this point, you've likely generated a client setup.  It will include something along these lines:
+## Quick Start
 
-```
-.
-|- README.md    // this file
-|- pom.xml      // build script
-|-- src
-|--- main
-|---- java
-|----- org.openapitools.codegen.laravelmax.LaravelMaxGenerator.java // generator file
-|---- resources
-|----- laravel-max // template files
-|----- META-INF
-|------ services
-|------- org.openapitools.codegen.CodegenConfig
+### Generate with Default Templates (Laravel)
+
+```bash
+# Build the generator
+mvn clean package -DskipTests
+
+# Generate code (default = Laravel templates)
+java -cp target/php-max-openapi-generator-1.0.0.jar:target/dependency/* \
+  org.openapitools.codegen.OpenAPIGenerator generate \
+  -g php-max \
+  -i path/to/openapi.yaml \
+  -o ./generated \
+  --additional-properties=invokerPackage=MyApi
 ```
 
-You _will_ need to make changes in at least the following:
+### Generate with External Templates
 
-`LaravelMaxGenerator.java`
-
-Templates in this folder:
-
-`src/main/resources/laravel-max`
-
-Once modified, you can run this:
-
-```
-mvn package
-```
-
-In your generator project. A single jar file will be produced in `target`. You can now use that with [OpenAPI Generator](https://openapi-generator.tech):
-
-For mac/linux:
-```
-java -cp /path/to/openapi-generator-cli.jar:/path/to/your.jar org.openapitools.codegen.OpenAPIGenerator generate -g laravel-max -i /path/to/openapi.yaml -o ./test
-```
-(Do not forget to replace the values `/path/to/openapi-generator-cli.jar`, `/path/to/your.jar` and `/path/to/openapi.yaml` in the previous command)
-
-For Windows users, you will need to use `;` instead of `:` in the classpath, e.g.
-```
-java -cp /path/to/openapi-generator-cli.jar;/path/to/your.jar org.openapitools.codegen.OpenAPIGenerator generate -g laravel-max -i /path/to/openapi.yaml -o ./test
+```bash
+# Use Symfony templates
+java -cp target/php-max-openapi-generator-1.0.0.jar:target/dependency/* \
+  org.openapitools.codegen.OpenAPIGenerator generate \
+  -g php-max \
+  -t path/to/openapi-generator-server-php-max-symfony \
+  -i path/to/openapi.yaml \
+  -o ./generated \
+  --additional-properties=invokerPackage=MyApi
 ```
 
-Now your templates are available to the client generator and you can write output values
+## Template Customization
 
-## But how do I modify this?
-The `LaravelMaxGenerator.java` has comments in it--lots of comments.  There is no good substitute
-for reading the code more, though.  See how the `LaravelMaxGenerator` implements `CodegenConfig`.
-That class has the signature of all values that can be overridden.
+### Available Template Sets
 
-You can also step through LaravelMaxGenerator.java in a debugger.  Just debug the JUnit
-test in DebugCodegenLauncher.  That runs the command line tool and lets you inspect what the code is doing.
+| Template Set | Framework | Location |
+|--------------|-----------|----------|
+| **Default** | Laravel | Embedded in JAR (`src/main/resources/php-max/`) |
+| php-max-default | Laravel | `openapi-generator-server-php-max-default/` |
+| php-max-slim | Slim 4 | `openapi-generator-server-php-max-slim/` |
+| php-max-symfony | Symfony | `openapi-generator-server-php-max-symfony/` |
 
-For the templates themselves, you have a number of values available to you for generation.
-You can execute the `java` command from above while passing different debug flags to show
-the object you have available during client generation:
+### Using External Templates
+
+Override embedded templates with the `-t` flag:
+
+```bash
+# Slim Framework
+-t path/to/openapi-generator-server-php-max-slim
+
+# Symfony
+-t path/to/openapi-generator-server-php-max-symfony
+
+# Your custom templates
+-t path/to/your-custom-templates
+```
+
+### Creating Custom Templates
+
+1. **Start from existing templates:**
+   ```bash
+   cp -r openapi-generator-server-php-max-default my-custom-templates
+   ```
+
+2. **Minimum required files:**
+   - `model.mustache` - DTO classes
+   - `api.mustache` - API service classes
+   - `controller.mustache` - Controllers/handlers
+
+3. **Optional files:**
+   - `files.json` - Template configuration
+   - `routes.mustache` - Route definitions
+   - `composer.json.mustache` - Package definition
+
+4. **Test your templates:**
+   ```bash
+   java -cp ... org.openapitools.codegen.OpenAPIGenerator generate \
+     -g php-max \
+     -t ./my-custom-templates \
+     -i test-spec.yaml \
+     -o ./test-output
+   ```
+
+### Template Override Precedence
+
+1. **`-t` flag** (highest priority) - External templates
+2. **Embedded templates** (default) - `src/main/resources/php-max/`
+
+## Configuration Options
+
+### Additional Properties
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| `invokerPackage` | Root namespace | `PhpMaxApi` |
+| `apiPackage` | API classes namespace | `{invokerPackage}\Api` |
+| `modelPackage` | Model classes namespace | `{invokerPackage}\Models` |
+| `controllerPackage` | Controllers namespace | `{invokerPackage}\Controller` |
+| `srcBasePath` | Source base path | `lib` |
+
+### Example Configuration
+
+```bash
+--additional-properties=invokerPackage=MyCompany\\MyApi
+--additional-properties=srcBasePath=src
+```
+
+## Project Structure
 
 ```
-# The following additional debug options are available for all codegen targets:
-# -DdebugOpenAPI prints the OpenAPI Specification as interpreted by the codegen
-# -DdebugModels prints models passed to the template engine
-# -DdebugOperations prints operations passed to the template engine
-# -DdebugSupportingFiles prints additional data passed to the template engine
-
-java -DdebugOperations -cp /path/to/openapi-generator-cli.jar:/path/to/your.jar org.openapitools.codegen.OpenAPIGenerator generate -g laravel-max -i /path/to/openapi.yaml -o ./test
+php-max/
+├── src/main/java/org/openapitools/codegen/phpmax/
+│   └── PhpMaxGenerator.java    # Generator implementation
+├── src/main/resources/
+│   ├── php-max/                # Default templates (Laravel)
+│   │   ├── api.mustache
+│   │   ├── controller.mustache
+│   │   ├── model.mustache
+│   │   └── ...
+│   └── META-INF/services/
+│       └── org.openapitools.codegen.CodegenConfig
+└── src/test/
+    └── java/                   # Unit tests
 ```
 
-Will, for example, output the debug info for operations.
-You can use this info in the `api.mustache` file.
+## Debugging
+
+```bash
+# Debug model data
+java -DdebugModels -cp ... org.openapitools.codegen.OpenAPIGenerator generate ...
+
+# Debug operation data
+java -DdebugOperations -cp ... org.openapitools.codegen.OpenAPIGenerator generate ...
+
+# Debug supporting files
+java -DdebugSupportingFiles -cp ... org.openapitools.codegen.OpenAPIGenerator generate ...
+```
+
+## Troubleshooting
+
+### Template not found
+- Check the `-t` path is correct and contains `.mustache` files
+- Verify file permissions
+
+### Empty output files
+- Check template syntax (unclosed `{{#...}}` blocks)
+- Use `-DdebugModels` to see available variables
+
+### Missing variables in output
+- Template variables are case-sensitive
+- Use `-DdebugOperations` to see available operation data
+
+## See Also
+
+- [LIMITATIONS.md](LIMITATIONS.md) - Known limitations
+- External template READMEs for framework-specific documentation
