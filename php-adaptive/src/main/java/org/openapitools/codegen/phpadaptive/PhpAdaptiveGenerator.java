@@ -140,6 +140,12 @@ public class PhpAdaptiveGenerator extends AbstractPhpCodegen implements CodegenC
 
         // Configure supporting files (routes, composer, etc.)
         configureSupportingFiles();
+
+        // Disable documentation generation (not needed for this generator)
+        apiDocTemplateFiles().clear();
+        modelDocTemplateFiles().clear();
+        apiTestTemplateFiles().clear();
+        modelTestTemplateFiles().clear();
     }
 
     /**
@@ -172,8 +178,10 @@ public class PhpAdaptiveGenerator extends AbstractPhpCodegen implements CodegenC
      * These templates are processed once per API tag.
      */
     protected void configureApiTemplates() {
+        // Clear default API templates from parent class
+        apiTemplateFiles().clear();
         // Handler interface: one per tag
-        apiTemplateFiles().put("handler-interface.mustache", "Interface.php");
+        apiTemplateFiles().put("handler-interface.mustache", "HandlerInterface.php");
     }
 
     /**
@@ -181,6 +189,8 @@ public class PhpAdaptiveGenerator extends AbstractPhpCodegen implements CodegenC
      * These templates are processed once per schema/model.
      */
     protected void configureModelTemplates() {
+        // Clear default model templates from parent class
+        modelTemplateFiles().clear();
         modelTemplateFiles().put("model.mustache", ".php");
     }
 
@@ -189,6 +199,8 @@ public class PhpAdaptiveGenerator extends AbstractPhpCodegen implements CodegenC
      * These templates are processed once for the entire spec.
      */
     protected void configureSupportingFiles() {
+        // Clear default supporting files from parent class
+        supportingFiles.clear();
         supportingFiles.add(new SupportingFile("routes.mustache", srcBasePath, "routes.php"));
         supportingFiles.add(new SupportingFile("composer.mustache", "", "composer.json"));
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
@@ -211,7 +223,7 @@ public class PhpAdaptiveGenerator extends AbstractPhpCodegen implements CodegenC
 
     @Override
     public String modelFileFolder() {
-        return outputFolder + File.separator + srcBasePath + File.separator + "Models";
+        return outputFolder + File.separator + srcBasePath + File.separator + "Model";
     }
 
     @Override

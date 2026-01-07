@@ -1,0 +1,57 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{requestPackage}};
+
+use Illuminate\Foundation\Http\FormRequest;
+
+/**
+ * {{operationIdPascalCase}}Request
+ *
+ * Form request for {{operationId}} operation.
+{{#operation.summary}}
+ * {{operation.summary}}
+{{/operation.summary}}
+ */
+final class {{operationIdPascalCase}}Request extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true; // Authorization should be handled by middleware
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+{{#operation.bodyParam}}
+{{#operation.bodyParam.vars}}
+            '{{baseName}}' => [{{#required}}'required'{{/required}}{{^required}}'nullable'{{/required}}{{#isString}}, 'string'{{#maxLength}}, 'max:{{maxLength}}'{{/maxLength}}{{#minLength}}, 'min:{{minLength}}'{{/minLength}}{{/isString}}{{#isInteger}}, 'integer'{{#minimum}}, 'min:{{minimum}}'{{/minimum}}{{#maximum}}, 'max:{{maximum}}'{{/maximum}}{{/isInteger}}{{#isBoolean}}, 'boolean'{{/isBoolean}}{{#isArray}}, 'array'{{/isArray}}],
+{{/operation.bodyParam.vars}}
+{{/operation.bodyParam}}
+{{#operation.queryParams}}
+            '{{baseName}}' => [{{#required}}'required'{{/required}}{{^required}}'nullable'{{/required}}{{#isString}}, 'string'{{/isString}}{{#isInteger}}, 'integer'{{/isInteger}}{{#isBoolean}}, 'boolean'{{/isBoolean}}{{#isArray}}, 'array'{{/isArray}}],
+{{/operation.queryParams}}
+        ];
+    }
+
+{{#operation.hasBodyParam}}
+    /**
+     * Get validated data suitable for creating a DTO.
+     *
+     * @return array<string, mixed>
+     */
+    public function validated($key = null, $default = null): mixed
+    {
+        return parent::validated($key, $default);
+    }
+{{/operation.hasBodyParam}}
+}

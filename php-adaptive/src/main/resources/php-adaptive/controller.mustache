@@ -1,0 +1,107 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{controllerPackage}};
+
+use {{handlerPackage}}\{{operation.baseName}}HandlerInterface;
+use {{requestPackage}}\{{operationIdPascalCase}}Request;
+{{#operation.hasBodyParam}}
+{{#operation.bodyParam}}
+{{#baseType}}
+use {{modelPackage}}\{{baseType}} as {{baseType}}Dto;
+{{/baseType}}
+{{/operation.bodyParam}}
+{{/operation.hasBodyParam}}
+use Illuminate\Http\JsonResponse;
+
+/**
+ * Controller for {{operationId}} operation.
+{{#operation.summary}}
+ *
+ * {{operation.summary}}
+{{/operation.summary}}
+{{#operation.notes}}
+ *
+ * {{operation.notes}}
+{{/operation.notes}}
+ */
+final class {{operationIdPascalCase}}Controller
+{
+    public function __construct(
+        private readonly {{operation.baseName}}HandlerInterface $handler
+    ) {}
+
+    /**
+     * Handle the {{operationId}} request.
+     *
+     * @param {{operationIdPascalCase}}Request $request The validated request
+{{#operation.pathParams}}
+     * @param {{dataType}} ${{paramName}} Path parameter: {{description}}
+{{/operation.pathParams}}
+     * @return JsonResponse
+     */
+    public function __invoke(
+        {{operationIdPascalCase}}Request $request{{#operation.hasPathParams}},{{/operation.hasPathParams}}
+{{#operation.pathParams}}
+        {{dataType}} ${{paramName}}{{^-last}},{{/-last}}
+{{/operation.pathParams}}
+    ): JsonResponse {
+{{#operation.hasBodyParam}}
+        // Convert validated request data to DTO
+{{#operation.bodyParam}}
+{{#baseType}}
+        $dto = {{baseType}}Dto::fromArray($request->validated());
+{{/baseType}}
+{{^baseType}}
+        $dto = $request->validated();
+{{/baseType}}
+{{/operation.bodyParam}}
+
+{{/operation.hasBodyParam}}
+{{#operation.hasQueryParams}}
+        // Extract query parameters
+{{#operation.queryParams}}
+{{#isArray}}
+        /** @var array<mixed> ${{paramName}} */
+        ${{paramName}} = $request->query('{{baseName}}', []);
+{{/isArray}}
+{{^isArray}}
+{{#isInteger}}
+        /** @var int{{^required}}|null{{/required}} ${{paramName}} */
+        ${{paramName}} = $request->query('{{baseName}}') !== null
+            ? (int) $request->query('{{baseName}}')
+            : {{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}{{#required}}0{{/required}}{{^required}}null{{/required}}{{/defaultValue}};
+{{/isInteger}}
+{{#isBoolean}}
+        /** @var bool{{^required}}|null{{/required}} ${{paramName}} */
+        ${{paramName}} = $request->query('{{baseName}}') !== null
+            ? filter_var($request->query('{{baseName}}'), FILTER_VALIDATE_BOOLEAN)
+            : {{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}{{#required}}false{{/required}}{{^required}}null{{/required}}{{/defaultValue}};
+{{/isBoolean}}
+{{^isInteger}}
+{{^isBoolean}}
+        /** @var string{{^required}}|null{{/required}} ${{paramName}} */
+        ${{paramName}} = $request->query('{{baseName}}'{{#defaultValue}}, {{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}, null{{/defaultValue}});
+{{/isBoolean}}
+{{/isInteger}}
+{{/isArray}}
+{{/operation.queryParams}}
+
+{{/operation.hasQueryParams}}
+        // Delegate to handler (argument order: path params -> query params -> body)
+        $response = $this->handler->{{operationIdCamelCase}}(
+{{#operation.pathParams}}
+            ${{paramName}}{{^-last}},{{/-last}}{{#-last}}{{#operation.hasQueryParams}},{{/operation.hasQueryParams}}{{^operation.hasQueryParams}}{{#operation.hasBodyParam}},{{/operation.hasBodyParam}}{{/operation.hasQueryParams}}{{/-last}}
+{{/operation.pathParams}}
+{{#operation.queryParams}}
+            ${{paramName}}{{^-last}},{{/-last}}{{#-last}}{{#operation.hasBodyParam}},{{/operation.hasBodyParam}}{{/-last}}
+{{/operation.queryParams}}
+{{#operation.hasBodyParam}}
+            $dto
+{{/operation.hasBodyParam}}
+        );
+
+        return $response;
+    }
+}

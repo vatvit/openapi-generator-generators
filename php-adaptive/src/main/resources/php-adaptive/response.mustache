@@ -1,0 +1,114 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{responsePackage}};
+
+use Illuminate\Http\JsonResponse;
+
+/**
+ * {{operationIdPascalCase}}Response
+ *
+ * Response class for {{operationId}} operation.
+{{#operation.summary}}
+ * {{operation.summary}}
+{{/operation.summary}}
+ */
+final class {{operationIdPascalCase}}Response
+{
+    /**
+     * @param array<string, mixed>|object|null $data Response data
+     * @param int $statusCode HTTP status code
+     * @param array<string, string> $headers Additional headers
+     */
+    public function __construct(
+        private readonly array|object|null $data = null,
+        private readonly int $statusCode = 200,
+        private readonly array $headers = []
+    ) {}
+
+    /**
+     * Create a successful response (HTTP 200).
+     *
+     * @param array<string, mixed>|object|null $data
+     * @return self
+     */
+    public static function ok(array|object|null $data = null): self
+    {
+        return new self($data, 200);
+    }
+
+    /**
+     * Create a created response (HTTP 201).
+     *
+     * @param array<string, mixed>|object|null $data
+     * @return self
+     */
+    public static function created(array|object|null $data = null): self
+    {
+        return new self($data, 201);
+    }
+
+    /**
+     * Create a no content response (HTTP 204).
+     *
+     * @return self
+     */
+    public static function noContent(): self
+    {
+        return new self(null, 204);
+    }
+
+    /**
+     * Create an error response.
+     *
+     * @param string $message Error message
+     * @param int $statusCode HTTP status code
+     * @param array<string, mixed> $errors Additional error details
+     * @return self
+     */
+    public static function error(string $message, int $statusCode = 400, array $errors = []): self
+    {
+        return new self([
+            'message' => $message,
+            'errors' => $errors,
+        ], $statusCode);
+    }
+
+    /**
+     * Convert to Laravel JsonResponse.
+     *
+     * @return JsonResponse
+     */
+    public function toJsonResponse(): JsonResponse
+    {
+        $data = $this->data;
+
+        // Convert object to array if needed
+        if (is_object($data) && method_exists($data, 'toArray')) {
+            $data = $data->toArray();
+        }
+
+        return response()->json($data, $this->statusCode, $this->headers);
+    }
+
+    /**
+     * Get the response data.
+     *
+     * @return array<string, mixed>|object|null
+     */
+    public function getData(): array|object|null
+    {
+        return $this->data;
+    }
+
+    /**
+     * Get the HTTP status code.
+     *
+     * @return int
+     */
+    public function getStatusCode(): int
+    {
+        return $this->statusCode;
+    }
+}

@@ -1,0 +1,60 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{handlerPackage}};
+
+use Illuminate\Http\JsonResponse;
+
+/**
+ * {{classname}}HandlerInterface
+ *
+ * Handler interface for {{classname}} API operations.
+ * Implement this interface to provide business logic.
+ */
+interface {{classname}}HandlerInterface
+{
+{{#operations}}
+{{#operation}}
+    /**
+     * {{summary}}
+{{#notes}}
+     *
+     * {{notes}}
+{{/notes}}
+     *
+{{#pathParams}}
+     * @param {{dataType}} ${{paramName}} {{description}}
+{{/pathParams}}
+{{#queryParams}}
+     * @param {{dataType}}{{^required}}|null{{/required}} ${{paramName}} {{description}}
+{{/queryParams}}
+{{#hasBodyParam}}
+{{#bodyParam}}
+     * @param {{dataType}} ${{paramName}} Request body DTO
+{{/bodyParam}}
+{{/hasBodyParam}}
+     * @return JsonResponse
+     */
+    public function {{operationId}}(
+{{#pathParams}}
+        {{dataType}} ${{paramName}}{{^-last}},{{/-last}}{{#-last}}{{#hasQueryParams}},{{/hasQueryParams}}{{^hasQueryParams}}{{#hasBodyParam}},{{/hasBodyParam}}{{/hasQueryParams}}{{/-last}}
+{{/pathParams}}
+{{#queryParams}}
+{{#isArray}}
+        {{^required}}?{{/required}}array ${{paramName}}{{^required}} = null{{/required}}{{^-last}},{{/-last}}{{#-last}}{{#hasBodyParam}},{{/hasBodyParam}}{{/-last}}
+{{/isArray}}
+{{^isArray}}
+        {{dataType}}{{^required}}|null{{/required}} ${{paramName}}{{^required}} = null{{/required}}{{^-last}},{{/-last}}{{#-last}}{{#hasBodyParam}},{{/hasBodyParam}}{{/-last}}
+{{/isArray}}
+{{/queryParams}}
+{{#hasBodyParam}}
+{{#bodyParam}}
+        {{dataType}} ${{paramName}}
+{{/bodyParam}}
+{{/hasBodyParam}}
+    ): JsonResponse;
+
+{{/operation}}
+{{/operations}}
+}

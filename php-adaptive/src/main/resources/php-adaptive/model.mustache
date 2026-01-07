@@ -1,0 +1,164 @@
+<?php
+
+declare(strict_types=1);
+
+{{#models}}
+{{#model}}
+namespace {{modelPackage}};
+
+{{#isEnum}}
+/**
+ * {{classname}} enum.
+{{#description}}
+ *
+ * {{description}}
+{{/description}}
+ */
+enum {{classname}}: string
+{
+{{#allowableValues}}
+{{#enumVars}}
+    case {{name}} = {{{value}}};
+{{/enumVars}}
+{{/allowableValues}}
+}
+{{/isEnum}}
+{{^isEnum}}
+/**
+ * {{classname}} model.
+{{#description}}
+ *
+ * {{description}}
+{{/description}}
+ */
+class {{classname}}
+{
+{{#vars}}
+{{#description}}
+    /**
+     * {{description}}
+{{#isArray}}
+     * @var array<mixed>{{^required}}|null{{/required}}
+{{/isArray}}
+{{#isMap}}
+     * @var array<string, mixed>{{^required}}|null{{/required}}
+{{/isMap}}
+     */
+{{/description}}
+{{^description}}
+{{#isArray}}
+    /** @var array<mixed>{{^required}}|null{{/required}} */
+{{/isArray}}
+{{#isMap}}
+    /** @var array<string, mixed>{{^required}}|null{{/required}} */
+{{/isMap}}
+{{/description}}
+{{#isArray}}
+    public {{^required}}?{{/required}}array ${{name}}{{^required}} = null{{/required}};
+{{/isArray}}
+{{#isMap}}
+    public {{^required}}?{{/required}}array ${{name}}{{^required}} = null{{/required}};
+{{/isMap}}
+{{^isArray}}
+{{^isMap}}
+    public {{^required}}?{{/required}}{{dataType}} ${{name}}{{^required}} = null{{/required}};
+{{/isMap}}
+{{/isArray}}
+
+{{/vars}}
+    /**
+     * Create a new {{classname}} instance.
+{{#vars}}
+{{#isArray}}
+     * @param array<mixed>{{^required}}|null{{/required}} ${{name}}
+{{/isArray}}
+{{#isMap}}
+     * @param array<string, mixed>{{^required}}|null{{/required}} ${{name}}
+{{/isMap}}
+{{/vars}}
+     */
+    public function __construct(
+{{#requiredVars}}
+{{#isArray}}
+        array ${{name}},
+{{/isArray}}
+{{#isMap}}
+        array ${{name}},
+{{/isMap}}
+{{^isArray}}
+{{^isMap}}
+        {{dataType}} ${{name}},
+{{/isMap}}
+{{/isArray}}
+{{/requiredVars}}
+{{#optionalVars}}
+{{#isArray}}
+        ?array ${{name}} = null{{^-last}},{{/-last}}
+{{/isArray}}
+{{#isMap}}
+        ?array ${{name}} = null{{^-last}},{{/-last}}
+{{/isMap}}
+{{^isArray}}
+{{^isMap}}
+        ?{{dataType}} ${{name}} = null{{^-last}},{{/-last}}
+{{/isMap}}
+{{/isArray}}
+{{/optionalVars}}
+    ) {
+{{#vars}}
+        $this->{{name}} = ${{name}};
+{{/vars}}
+    }
+
+    /**
+     * Create instance from array data.
+     *
+     * @param array<string, mixed> $data
+     * @return self
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+{{#vars}}
+{{#isDateTime}}
+            {{name}}: isset($data['{{baseName}}']) ? new \DateTime($data['{{baseName}}']) : {{^required}}null{{/required}}{{#required}}throw new \InvalidArgumentException('{{baseName}} is required'){{/required}}{{^-last}},{{/-last}}
+{{/isDateTime}}
+{{^isDateTime}}
+{{#isEnum}}
+{{^isPrimitiveType}}
+            {{name}}: {{#required}}{{dataType}}::from($data['{{baseName}}']){{/required}}{{^required}}isset($data['{{baseName}}']) ? {{dataType}}::from($data['{{baseName}}']) : null{{/required}}{{^-last}},{{/-last}}
+{{/isPrimitiveType}}
+{{#isPrimitiveType}}
+            {{name}}: $data['{{baseName}}'] ?? {{^required}}null{{/required}}{{#required}}throw new \InvalidArgumentException('{{baseName}} is required'){{/required}}{{^-last}},{{/-last}}
+{{/isPrimitiveType}}
+{{/isEnum}}
+{{^isEnum}}
+            {{name}}: $data['{{baseName}}'] ?? {{^required}}null{{/required}}{{#required}}throw new \InvalidArgumentException('{{baseName}} is required'){{/required}}{{^-last}},{{/-last}}
+{{/isEnum}}
+{{/isDateTime}}
+{{/vars}}
+        );
+    }
+
+    /**
+     * Convert instance to array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+{{#vars}}
+{{#isDateTime}}
+            '{{baseName}}' => $this->{{name}}{{^required}}?{{/required}}->format(\DateTimeInterface::ATOM){{^-last}},{{/-last}}
+{{/isDateTime}}
+{{^isDateTime}}
+            '{{baseName}}' => $this->{{name}}{{^-last}},{{/-last}}
+{{/isDateTime}}
+{{/vars}}
+        ];
+    }
+}
+{{/isEnum}}
+{{/model}}
+{{/models}}
